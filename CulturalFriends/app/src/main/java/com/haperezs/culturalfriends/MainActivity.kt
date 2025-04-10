@@ -1,27 +1,15 @@
 package com.haperezs.culturalfriends
 
-import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ChatBubble
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -31,25 +19,24 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.media3.common.util.Log
-import androidx.media3.common.util.UnstableApi
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.haperezs.culturalfriends.chat.ChatScreen
+import com.haperezs.culturalfriends.finder.FinderScreen
+import com.haperezs.culturalfriends.translate.TranslateScreen
 import com.haperezs.culturalfriends.ui.theme.CulturalFriendsTheme
 
 class BottomNavigationItem(
     val title: String,
     val icon: ImageVector,
     val badge: Boolean,
+    val route: String
 )
 
 class MainActivity : ComponentActivity() {
-    @OptIn(UnstableApi::class)
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -57,20 +44,25 @@ class MainActivity : ComponentActivity() {
                 val items = listOf(
                     BottomNavigationItem(
                         title = "Chat",
-                        icon = Icons.Filled.ChatBubble,
+                        icon = Icons.Outlined.ChatBubbleOutline,
                         badge = true,
+                        route = Screen.ChatScreen.route
                     ),
                     BottomNavigationItem(
                         title = "Finder",
-                        icon = Icons.Filled.Map,
+                        icon = Icons.Outlined.Map,
                         badge = false,
+                        route = Screen.FinderScreen.route
                     ),
                     BottomNavigationItem(
                         title = "Translate",
-                        icon = Icons.Filled.Translate,
+                        icon = Icons.Outlined.Translate,
                         badge = false,
+                        route = Screen.TranslateScreen.route
                     ),
                 )
+                val navController = rememberNavController()
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -83,6 +75,7 @@ class MainActivity : ComponentActivity() {
                                         selected = false,
                                         onClick = {
                                             Log.d(javaClass.simpleName,"Navigate to ${item.title}")
+                                            navController.navigate(item.route)
                                         },
                                         label = {
                                             Text(text = item.title)
@@ -106,13 +99,19 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    ) {
-
+                    ) { innerPadding ->
+                        NavHost(
+                            navController = navController,
+                            startDestination  = Screen.FinderScreen.route,
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
+                            composable(Screen.ChatScreen.route) { ChatScreen(navController) }
+                            composable(Screen.FinderScreen.route) { FinderScreen(navController) }
+                            composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
+                        }
                     }
                 }
             }
         }
     }
 }
-
-
