@@ -12,9 +12,14 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import com.haperezs.culturalfriends.Screen
 
 @Composable
-fun AuthScreen(authViewModel: AuthViewModel = viewModel()) {
+fun AuthScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,6 +59,11 @@ fun AuthScreen(authViewModel: AuthViewModel = viewModel()) {
                         authViewModel.login(email, password) { success, error ->
                             message = if (success) "Logged in!" else error
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            if (success){
+                                navController.navigate(Screen.FinderScreen.route){
+                                    popUpTo(Screen.AuthScreen.route) { inclusive = true }
+                                }
+                            }
                         }
                     },
                     modifier = Modifier
@@ -66,6 +76,11 @@ fun AuthScreen(authViewModel: AuthViewModel = viewModel()) {
                         authViewModel.register(email, password) { success, error ->
                             message = if (success) "Registered!" else error
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            if (success){
+                                navController.navigate(Screen.FinderScreen.route){
+                                    popUpTo(Screen.AuthScreen.route) { inclusive = true }
+                                }
+                            }
                         }
                     },
                     modifier = Modifier
