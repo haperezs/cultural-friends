@@ -19,11 +19,16 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.haperezs.culturalfriends.auth.AuthScreen
 import com.haperezs.culturalfriends.chat.ChatScreen
 import com.haperezs.culturalfriends.finder.FinderScreen
 import com.haperezs.culturalfriends.translate.TranslateScreen
@@ -64,12 +69,22 @@ class MainActivity : ComponentActivity() {
                     ),
                 )
                 val navController = rememberNavController()
+                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = currentBackStackEntry?.destination?.route
 
                 Scaffold(
                     topBar = {
                         CenterAlignedTopAppBar(
                             title = {
-                                Text(text = "Topbar")
+                                Text(
+                                    text = when (currentRoute) {
+                                        Screen.AuthScreen.route -> "Login"
+                                        Screen.ChatScreen.route -> "Chat"
+                                        Screen.FinderScreen.route -> "Finder"
+                                        Screen.TranslateScreen.route -> "Translate"
+                                        else -> "Cultural Friends"
+                                    }
+                                )
                             }
                         )
                     },
@@ -107,13 +122,13 @@ class MainActivity : ComponentActivity() {
                     content = { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination  = Screen.FinderScreen.route,
+                            startDestination  = Screen.AuthScreen.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable(Screen.ChatScreen.route) { ChatScreen(navController) }
                             composable(Screen.FinderScreen.route) { FinderScreen(navController) }
                             composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
-                        }
+                            composable(Screen.AuthScreen.route) { AuthScreen() }}
                     }
                 )
             }
