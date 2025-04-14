@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -35,12 +36,23 @@ fun FinderScreen(
 
     val displayName by authViewModel.displayName.collectAsStateWithLifecycle()
     val previewMarker by finderViewModel.previewMarker.collectAsStateWithLifecycle()
+    val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
     val peopleMarkers by finderViewModel.peopleMarkers.collectAsStateWithLifecycle()
 
     var isMapLoaded by remember { mutableStateOf(false) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultTarget, 12f)
+    }
+
+    LaunchedEffect(publicMarker) {
+        publicMarker?.let {
+            val target = LatLng(publicMarker!!.latitude, publicMarker!!.longitude)
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(target, 12f),
+                durationMs = 1000
+            )
+        }
     }
 
     Column {

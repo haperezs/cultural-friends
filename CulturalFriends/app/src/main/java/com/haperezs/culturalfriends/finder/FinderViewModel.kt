@@ -36,7 +36,8 @@ class FinderViewModel : ViewModel() {
     val previewMarker: StateFlow<LatLng?> = _previewMarker
 
     private val _publicMarkerId = MutableStateFlow<String?>(null)
-    val publicMarkerId: StateFlow<String?> = _publicMarkerId
+    private val _publicMarker = MutableStateFlow<PeopleMarker?>(null)
+    val publicMarker: StateFlow<PeopleMarker?> = _publicMarker
 
     // These are read from the db and updated by other people
     private val _peopleMarkers = MutableStateFlow<List<PeopleMarker?>>(emptyList())
@@ -58,6 +59,7 @@ class FinderViewModel : ViewModel() {
                 if (!querySnapshot.isEmpty) {
                     val document = querySnapshot.documents[0]
                     _publicMarkerId.value = document.id
+                    _publicMarker.value = document.toObject(PeopleMarker::class.java)?.copy(id = document.id)
                     Log.d(javaClass.simpleName, "Success fetching user public marker. id: ${_publicMarkerId.value}")
                 } else {
                     Log.d(javaClass.simpleName, "No public marker for user found.")
