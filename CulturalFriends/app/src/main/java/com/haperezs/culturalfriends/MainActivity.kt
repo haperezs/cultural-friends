@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
                             NavigationBar {
                                 items.forEachIndexed { index, item ->
                                     NavigationBarItem(
-                                        selected = false,
+                                        selected = currentRoute == item.route,
                                         onClick = {
                                             Log.d(javaClass.simpleName, "Navigate to ${item.title}")
                                             navController.navigate(item.route){
