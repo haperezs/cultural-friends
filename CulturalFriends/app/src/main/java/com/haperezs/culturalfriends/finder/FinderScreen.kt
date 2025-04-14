@@ -35,7 +35,6 @@ fun FinderScreen(
 
     val displayName by authViewModel.displayName.collectAsStateWithLifecycle()
     val previewMarker by finderViewModel.previewMarker.collectAsStateWithLifecycle()
-    val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
     val peopleMarkers by finderViewModel.peopleMarkers.collectAsStateWithLifecycle()
 
     var isMapLoaded by remember { mutableStateOf(false) }
@@ -82,37 +81,6 @@ fun FinderScreen(
                     }
                 }
 
-                publicMarker?.let { position ->
-                    MarkerComposable(
-                        state = MarkerState(position = position),
-                    ) {
-                        Column (
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        )
-                        {
-                            Text(
-                                text = displayName,
-                                color = Color.DarkGray,
-                                modifier = Modifier
-                                    .background(Color.LightGray)
-                                    .padding(4.dp, 2.dp)
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Accessibility,
-                                    contentDescription = "Public marker icon",
-                                    tint = iconColor,
-                                    modifier = Modifier.matchParentSize()
-                                )
-                            }
-                        }
-                    }
-                }
-
                 peopleMarkers.forEach{marker ->
                     if (marker != null) {
                         key(marker.id + marker.name){
@@ -150,7 +118,7 @@ fun FinderScreen(
             }
             FloatingActionButton(
                 onClick = {
-                    finderViewModel.updatePublicMarker(previewMarker)
+                    finderViewModel.updatePublicMarker(previewMarker!!)
                     finderViewModel.updatePreviewMarker(null)
                 },
                 shape = CircleShape,
