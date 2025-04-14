@@ -132,10 +132,10 @@ class MainActivity : ComponentActivity() {
                                             Log.d(javaClass.simpleName, "Navigate to ${item.title}")
                                             navController.navigate(item.route){
                                                 launchSingleTop = true
+                                                restoreState = true
                                                 popUpTo(navController.graph.startDestinationId) {
                                                     saveState = true
                                                 }
-                                                restoreState = true
                                             }
 
                                         },

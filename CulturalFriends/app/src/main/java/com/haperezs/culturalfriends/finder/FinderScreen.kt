@@ -1,6 +1,5 @@
 package com.haperezs.culturalfriends.finder
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -28,24 +27,29 @@ import com.haperezs.culturalfriends.auth.AuthViewModel
 @Composable
 fun FinderScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel(),
+    finderViewModel: FinderViewModel = viewModel()
 ) {
     val iconColor = Color(0xFF1565C0)
     val defaultTarget = LatLng(47.607616036871896, -122.31669998841178)
 
     val displayName by authViewModel.displayName.collectAsStateWithLifecycle()
-    var previewMarker by remember { mutableStateOf<LatLng?>(null) }
-    var publicMarker by remember { mutableStateOf<LatLng?>(null) }
+    val previewMarker by finderViewModel.previewMarker.collectAsStateWithLifecycle()
+    val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
+    val peopleMarkers by finderViewModel.peopleMarkers.collectAsStateWithLifecycle()
+
     var isMapLoaded by remember { mutableStateOf(false) }
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(defaultTarget, 12f)
+    }
 
     Column {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             val map = GoogleMap(
-                cameraPositionState = rememberCameraPositionState {
-                    position = CameraPosition.fromLatLngZoom(defaultTarget, 12f)
-                },
+                cameraPositionState = cameraPositionState,
                 onMapLoaded = {
                     var isMapLoaded = true
                 },
@@ -53,7 +57,7 @@ fun FinderScreen(
                     zoomControlsEnabled = false
                 ),
                 onMapClick = { position ->
-                    previewMarker = position
+                    finderViewModel.updatePreviewMarker(position)
                 },
                 modifier = Modifier.fillMaxSize(),
             ){
@@ -108,11 +112,46 @@ fun FinderScreen(
                         }
                     }
                 }
+
+                peopleMarkers.forEach{marker ->
+                    if (marker != null) {
+                        key(marker.id + marker.name){
+                            MarkerComposable(
+                                state = MarkerState(position = marker.toLatLng()),
+                            ) {
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                )
+                                {
+                                    Text(
+                                        text = marker.name,
+                                        color = Color.DarkGray,
+                                        modifier = Modifier
+                                            .background(Color.LightGray)
+                                            .padding(4.dp, 2.dp)
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(48.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Accessibility,
+                                            contentDescription = "Public marker icon",
+                                            tint = iconColor,
+                                            modifier = Modifier.matchParentSize()
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             FloatingActionButton(
                 onClick = {
-                    publicMarker = previewMarker
-                    previewMarker = null
+                    finderViewModel.updatePublicMarker(previewMarker)
+                    finderViewModel.updatePreviewMarker(null)
                 },
                 shape = CircleShape,
                 modifier = Modifier
