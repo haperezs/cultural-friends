@@ -56,12 +56,15 @@ fun FinderScreen(
 
     // Centers the map to the position of the user's pin, only if it exists and is loaded successfully
     LaunchedEffect(publicMarker) {
-        publicMarker?.let {
+        if (publicMarker != null && !finderViewModel.publicMarkerCentered) {
+            finderViewModel.publicMarkerCentered = true
+
             val target = LatLng(publicMarker!!.latitude, publicMarker!!.longitude)
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(target, 12f),
+                update = CameraUpdateFactory.newLatLngZoom(target, 14f),
                 durationMs = 1000
             )
+
         }
     }
 
@@ -77,6 +80,7 @@ fun FinderScreen(
             GoogleMap(
                 cameraPositionState = cameraPositionState,
                 onMapLoaded = {
+                    Log.d("GoogleMap", "Map loaded")
                     var isMapLoaded = true
                 },
                 uiSettings = MapUiSettings(
@@ -151,6 +155,7 @@ fun FinderScreen(
             }
             FloatingActionButton(
                 onClick = {
+                    finderViewModel.publicMarkerCentered = false
                     finderViewModel.updatePublicMarker(previewMarker!!)
                     finderViewModel.updatePreviewMarker(null)
                 },

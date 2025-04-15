@@ -28,6 +28,8 @@ class FinderViewModel : ViewModel() {
     private val _publicMarkerId = MutableStateFlow<String?>(null)
     private val _publicMarker = MutableStateFlow<PeopleMarker?>(null)
     val publicMarker: StateFlow<PeopleMarker?> = _publicMarker
+    // Helps to avoid re-centering the map after each tab change
+    var publicMarkerCentered = false
 
     // These are read from the db and updated by other people
     private val _peopleMarkers = MutableStateFlow<List<PeopleMarker?>>(emptyList())
@@ -44,22 +46,23 @@ class FinderViewModel : ViewModel() {
         db.collection("people")
             .whereEqualTo("uid", userId)
             .limit(1)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val document = querySnapshot.documents[0]
-                    _publicMarkerId.value = document.id
-                    _publicMarker.value = document.toObject(PeopleMarker::class.java)?.copy(id = document.id)
-                    Log.d(javaClass.simpleName, "Success fetching user public marker. id: ${_publicMarkerId.value}")
-                } else {
-                    Log.d(javaClass.simpleName, "No public marker for user found.")
+            .addSnapshotListener { querySnapshot, e ->
+                if (e != null) {
+                    Log.d(javaClass.simpleName, "Error fetching user public marker. $e")
+                    return@addSnapshotListener
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.d(javaClass.simpleName, "Error fetching user public marker. $e")
+                if (querySnapshot == null || querySnapshot.size() == 0) {
+                    Log.d(javaClass.simpleName, "No public marker for user found.")
+                    return@addSnapshotListener
+                }
+                val document = querySnapshot.documents[0]
+                _publicMarkerId.value = document.id
+                _publicMarker.value = document.toObject(PeopleMarker::class.java)?.copy(id = document.id)
+                Log.d(javaClass.simpleName, "Success fetching user public marker. id: ${_publicMarkerId.value}")
             }
     }
 
+    // If a current marker exists for the user update it, else create it
     fun updatePublicMarker(position: LatLng) {
         Log.d(javaClass.simpleName, "Updating public marker.")
         val updates = mapOf(
