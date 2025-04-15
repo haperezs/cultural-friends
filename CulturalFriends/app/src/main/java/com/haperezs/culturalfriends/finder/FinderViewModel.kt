@@ -88,7 +88,20 @@ class FinderViewModel : ViewModel() {
                     Log.w(javaClass.simpleName, "Error creating public marker. $e")
                 }
         }
+    }
 
+    // Update the user displayName on an existing public marker
+    fun updatePublicMarker(newDisplayName: String) {
+        Log.d(javaClass.simpleName, "Updating public marker.")
+        val updates = mapOf(
+            "name" to newDisplayName
+        )
+
+        if (_publicMarkerId.value?.isNotBlank() == true) {
+            db.collection("people")
+                .document(_publicMarkerId.value!!)
+                .set(updates, SetOptions.merge())
+        }
     }
 
     private fun fetchPeopleMarkers() {

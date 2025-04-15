@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,5 +73,20 @@ class AuthViewModel : ViewModel() {
     fun logout() {
         auth.signOut()
         _authState.value = null
+    }
+
+    fun updateDisplayName(newDisplayName: String){
+        val updates = UserProfileChangeRequest.Builder()
+            .setDisplayName(newDisplayName)
+            .build()
+
+        _authState.value?.updateProfile(updates)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d(javaClass.simpleName, "User displayName updated to $newDisplayName")
+                } else {
+                    Log.e(javaClass.simpleName, "Failed to update display name. ${task.exception}")
+                }
+            }
     }
 }
