@@ -1,14 +1,20 @@
 package com.haperezs.culturalfriends.finder
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAddAlt1
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +38,7 @@ fun FinderScreen(
     finderViewModel: FinderViewModel = viewModel()
 ) {
     val iconColor = Color(0xFF1565C0)
+    val defaultInfo = PeopleMarker("0", 0.0,0.0,"Placeholder", "0")
     val defaultTarget = LatLng(47.607616036871896, -122.31669998841178)
 
     val displayName by authViewModel.displayName.collectAsStateWithLifecycle()
@@ -40,11 +47,14 @@ fun FinderScreen(
     val peopleMarkers by finderViewModel.peopleMarkers.collectAsStateWithLifecycle()
 
     var isMapLoaded by remember { mutableStateOf(false) }
+    var showInfo by remember { mutableStateOf(false) }
+    var selectedMarkerInfo by remember { mutableStateOf(defaultInfo) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultTarget, 12f)
     }
 
+    // Centers the map to the position of the user's pin, only if it exists and is loaded successfully
     LaunchedEffect(publicMarker) {
         publicMarker?.let {
             val target = LatLng(publicMarker!!.latitude, publicMarker!!.longitude)
@@ -55,11 +65,16 @@ fun FinderScreen(
         }
     }
 
+    // Hides the pin info window when the map is scrolled
+    LaunchedEffect(cameraPositionState.isMoving) {
+        showInfo = false
+    }
+
     Column {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            val map = GoogleMap(
+            GoogleMap(
                 cameraPositionState = cameraPositionState,
                 onMapLoaded = {
                     var isMapLoaded = true
@@ -69,6 +84,7 @@ fun FinderScreen(
                 ),
                 onMapClick = { position ->
                     finderViewModel.updatePreviewMarker(position)
+                    showInfo = false
                 },
                 modifier = Modifier.fillMaxSize(),
             ){
@@ -98,6 +114,11 @@ fun FinderScreen(
                         key(marker.id + marker.name){
                             MarkerComposable(
                                 state = MarkerState(position = marker.toLatLng()),
+                                onClick = {
+                                    selectedMarkerInfo = peopleMarkers.find { it?.id == marker.id }!!
+                                    showInfo = true
+                                    true
+                                }
                             ) {
                                 Column (
                                     horizontalAlignment = Alignment.CenterHorizontally
@@ -138,7 +159,59 @@ fun FinderScreen(
                             .align(Alignment.BottomEnd)
                             .padding(16.dp)
             ) {
-                Icon(Icons.Filled.PersonAddAlt1, "Add public marker button")
+                Icon(
+                    imageVector = Icons.Filled.PersonAddAlt1,
+                    contentDescription = "Add public marker button"
+                )
+            }
+            if (showInfo) {
+                Box (
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                                    .background(
+                                        Color.Black.copy(alpha = 0.8f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .fillMaxWidth()
+                                    .padding(16.dp, 24.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = "User info window icon",
+                                tint = Color.White
+                            )
+                            Text(
+                                text = selectedMarkerInfo.name,
+                                modifier = Modifier
+                                            .padding(4.dp, 0.dp),
+                                color = Color.White,
+                            )
+                        }
+                        Row (
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            OutlinedButton(
+                                onClick = {
+                                    Log.d("Button", "TODO")
+                                },
+                            ) {
+                                Text(
+                                    text = "Start chat",
+                                    modifier = Modifier
+                                        .padding(4.dp, 0.dp),
+                                    color = Color.White,
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

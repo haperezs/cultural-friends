@@ -11,16 +11,6 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-data class PeopleMarker(
-    val id: String = "",
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
-    val name: String = "",
-    val uid: String = ""
-) {
-    fun toLatLng(): LatLng = LatLng(latitude, longitude)
-}
-
 class FinderViewModel : ViewModel() {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = Firebase.auth
