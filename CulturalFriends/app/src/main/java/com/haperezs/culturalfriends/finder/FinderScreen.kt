@@ -29,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 
 @Composable
@@ -204,7 +205,13 @@ fun FinderScreen(
                         ) {
                             OutlinedButton(
                                 onClick = {
-                                    Log.d("Button", "TODO")
+                                    navController.navigate(Screen.ChatScreen.route){
+                                        launchSingleTop = true
+                                        restoreState = true
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                    }
                                 },
                             ) {
                                 Text(

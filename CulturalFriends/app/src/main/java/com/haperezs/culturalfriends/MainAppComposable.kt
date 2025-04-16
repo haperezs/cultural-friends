@@ -46,7 +46,7 @@ class BottomNavigationItem(
 fun MainAppComposable() {
     val items = listOf(
         BottomNavigationItem(
-            title = "Chat",
+            title = "Chats",
             icon = Icons.Outlined.ChatBubbleOutline,
             badge = true,
             route = Screen.ChatScreen.route
@@ -79,7 +79,7 @@ fun MainAppComposable() {
                     Text(
                         text = when (currentRoute) {
                             Screen.AuthScreen.route -> "Cultural Friends"
-                            Screen.ChatScreen.route -> "Chat"
+                            Screen.ChatScreen.route -> "Chats"
                             Screen.FinderScreen.route -> "Finder"
                             Screen.TranslateScreen.route -> "Translate"
                             Screen.TranslateScreen.route -> "Settings"

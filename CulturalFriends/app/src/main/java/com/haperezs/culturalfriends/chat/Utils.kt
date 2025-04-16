@@ -1,0 +1,25 @@
+package com.haperezs.culturalfriends.chat
+
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
+fun formatTimestamp(timestamp: Timestamp): String {
+    val today = Calendar.getInstance()
+    val message = Calendar.getInstance().apply {
+        time = timestamp.toDate()
+    }
+
+    val sdf : SimpleDateFormat =
+        if (today.get(Calendar.DAY_OF_YEAR) == message.get(Calendar.DAY_OF_YEAR)
+            && today.get(Calendar.YEAR) == message.get(Calendar.YEAR)) {
+            SimpleDateFormat("HH:mm", Locale.getDefault())
+        } else {
+            SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+        }
+
+    return sdf.format(timestamp.toDate())
+}
+
+
