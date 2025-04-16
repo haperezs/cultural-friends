@@ -1,185 +1,18 @@
 package com.haperezs.culturalfriends
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.material.icons.outlined.Map
-import androidx.compose.material.icons.outlined.Translate
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.haperezs.culturalfriends.auth.AuthScreen
-import com.haperezs.culturalfriends.auth.AuthViewModel
-import com.haperezs.culturalfriends.chat.ChatScreen
-import com.haperezs.culturalfriends.finder.FinderScreen
-import com.haperezs.culturalfriends.translate.TranslateScreen
 import com.haperezs.culturalfriends.ui.theme.CulturalFriendsTheme
 
-class BottomNavigationItem(
-    val title: String,
-    val icon: ImageVector,
-    val badge: Boolean,
-    val route: String
-)
-
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             CulturalFriendsTheme {
-                val items = listOf(
-                    BottomNavigationItem(
-                        title = "Chat",
-                        icon = Icons.Outlined.ChatBubbleOutline,
-                        badge = true,
-                        route = Screen.ChatScreen.route
-                    ),
-                    BottomNavigationItem(
-                        title = "Finder",
-                        icon = Icons.Outlined.Map,
-                        badge = false,
-                        route = Screen.FinderScreen.route
-                    ),
-                    BottomNavigationItem(
-                        title = "Translate",
-                        icon = Icons.Outlined.Translate,
-                        badge = false,
-                        route = Screen.TranslateScreen.route
-                    ),
-                )
-                val navController = rememberNavController()
-                val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = currentBackStackEntry?.destination?.route
-
-                // Routes where back arrow is shown
-                val backArrowRoutes = listOf(Screen.SettingsScreen.route)
-                val canNavigateBack = currentRoute in backArrowRoutes
-
-                Scaffold(
-                    topBar = {
-                        CenterAlignedTopAppBar(
-                            title = {
-                                Text(
-                                    text = when (currentRoute) {
-                                        Screen.AuthScreen.route -> "Cultural Friends"
-                                        Screen.ChatScreen.route -> "Chat"
-                                        Screen.FinderScreen.route -> "Finder"
-                                        Screen.TranslateScreen.route -> "Translate"
-                                        Screen.TranslateScreen.route -> "Settings"
-                                        else -> "Cultural Friends"
-                                    }
-                                )
-                            },
-                            actions = {
-                                IconButton(
-                                    onClick = {
-                                        navController.navigate(Screen.SettingsScreen.route)
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Go to settings"
-                                    )
-                                }
-                            },
-                            navigationIcon = {
-                                if (canNavigateBack){
-                                    IconButton(onClick = { navController.popBackStack() }) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                            contentDescription = "Back"
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    },
-                    bottomBar = {
-                        if (currentRoute != Screen.AuthScreen.route) {
-                            NavigationBar {
-                                items.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = currentRoute == item.route,
-                                        onClick = {
-                                            Log.d(javaClass.simpleName, "Navigate to ${item.title}")
-                                            navController.navigate(item.route){
-                                                launchSingleTop = true
-                                                restoreState = true
-                                                popUpTo(navController.graph.startDestinationId) {
-                                                    saveState = true
-                                                }
-                                            }
-
-                                        },
-                                        label = {
-                                            Text(text = item.title)
-                                        },
-                                        alwaysShowLabel = true,
-                                        icon = {
-                                            BadgedBox(
-                                                badge = {
-                                                    if (item.badge) {
-                                                        Badge()
-                                                    }
-                                                }
-                                            ) {
-                                                Icon(
-                                                    imageVector = item.icon,
-                                                    contentDescription = item.title
-                                                )
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    },
-                    content = { innerPadding ->
-                        val authViewModel = viewModel<AuthViewModel>()
-                        val user by authViewModel.authState.collectAsStateWithLifecycle()
-                        val startDestination = if (user != null) Screen.FinderScreen.route else Screen.AuthScreen.route
-
-                        NavHost(
-                            navController = navController,
-                            startDestination  = startDestination,
-                            modifier = Modifier.padding(innerPadding)
-                        ) {
-                            composable(Screen.AuthScreen.route) { AuthScreen(navController) }
-                            composable(Screen.ChatScreen.route) { ChatScreen(navController) }
-                            composable(Screen.FinderScreen.route) { FinderScreen(navController) }
-                            composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
-                            composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
-                        }
-                    }
-                )
+                MainAppComposable()
             }
         }
     }
