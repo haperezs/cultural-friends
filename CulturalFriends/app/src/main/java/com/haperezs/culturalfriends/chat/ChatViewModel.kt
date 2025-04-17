@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -20,7 +21,7 @@ class ChatViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
 
     init {
-        fetchChats()
+        observeAuthChanges()
     }
 
     private val _chats = MutableStateFlow<List<Chat?>>(emptyList())
@@ -32,6 +33,18 @@ class ChatViewModel : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message?>>(emptyList())
     val messages: StateFlow<List<Message?>> = _messages
+
+    // Observe auth status to reload chats if the user logs out
+    private fun observeAuthChanges() {
+        auth.addAuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                fetchChats()
+            } else {
+                _chats.value = emptyList()
+            }
+        }
+    }
 
     fun updateCurrentChat(newChat: String) {
         _currentChat.value = newChat
@@ -114,4 +127,39 @@ class ChatViewModel : ViewModel() {
             }
     }
 
+    fun sendMessage(chatId: String, message: String){
+        Log.d(javaClass.simpleName, "Sending message.")
+        val chatUpdates = mapOf(
+            "lastMessage" to message,
+            "lastMessageTimestamp" to Timestamp.now(),
+            "lastMessageBy" to auth.currentUser!!.uid,
+        )
+
+        val messageUpdates = mapOf(
+            "text" to message,
+            "sender" to auth.currentUser!!.uid,
+            "timestamp" to Timestamp.now(),
+        )
+
+        db.collection("chats")
+            .document(chatId)
+            .update(chatUpdates)
+            .addOnSuccessListener {
+                Log.d(javaClass.simpleName, "Updated last message info for chat $chatId")
+            }
+            .addOnFailureListener { e ->
+                Log.w(javaClass.simpleName, "Error updating last message info for chat $chatId. $e")
+            }
+
+        db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+            .add(messageUpdates)
+            .addOnSuccessListener {
+                Log.d(javaClass.simpleName, "Added message to chat $chatId")
+            }
+            .addOnFailureListener { e ->
+                Log.w(javaClass.simpleName, "Error adding message to chat $chatId. $e")
+            }
+    }
 }

@@ -95,7 +95,7 @@ fun ChatSingleScreen(
             IconButton(
                 onClick = {
                     if (messageText.isNotBlank()) {
-                        Log.d(javaClass.simpleName, "Send a message")
+                        chatViewModel.sendMessage(chatId, messageText)
                         messageText = ""
                     }
                 }

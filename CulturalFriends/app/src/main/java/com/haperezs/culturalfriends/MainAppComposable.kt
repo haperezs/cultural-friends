@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,10 +49,12 @@ class BottomNavigationItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppComposable(
-    chatViewModel: ChatViewModel = viewModel()
-) {
+fun MainAppComposable() {
+    val authViewModel = viewModel<AuthViewModel>()
+    val chatViewModel = viewModel<ChatViewModel>()
+
     val currentChat by chatViewModel.currentChat.collectAsStateWithLifecycle()
+    val user by authViewModel.authState.collectAsStateWithLifecycle()
 
     val items = listOf(
         BottomNavigationItem(
@@ -91,9 +94,8 @@ fun MainAppComposable(
         else -> "Cultural Friends"
     }
 
-    LaunchedEffect(currentChat) {
-        Log.d("TopBar", "CurrentChatName: $currentChat")
-    }
+    // If user is not logged in, navigate to Auth Screen
+    val startDestination = if (user != null) Screen.FinderScreen.route else Screen.AuthScreen.route
 
     Scaffold(
         topBar = {
@@ -168,23 +170,28 @@ fun MainAppComposable(
             }
         },
         content = { innerPadding ->
-            val authViewModel = viewModel<AuthViewModel>()
-            val user by authViewModel.authState.collectAsStateWithLifecycle()
-            val startDestination = if (user != null) Screen.FinderScreen.route else Screen.AuthScreen.route
-
             NavHost(
                 navController = navController,
-                startDestination  = startDestination,
+                startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Screen.AuthScreen.route) { AuthScreen(navController) }
-                composable(Screen.ChatScreen.route) { ChatScreen(navController, chatViewModel = chatViewModel) }
+                composable(Screen.ChatScreen.route) {
+                    ChatScreen(
+                        navController,
+                        chatViewModel = chatViewModel
+                    )
+                }
                 composable(
                     route = Screen.ChatSingleScreen.route,
                     arguments = listOf(navArgument("chatId") { type = NavType.StringType })
                 ) { backStackEntry ->
                     val chatId = backStackEntry.arguments?.getString("chatId")
-                    ChatSingleScreen(navController, chatViewModel = chatViewModel, chatId = chatId!!)
+                    ChatSingleScreen(
+                        navController,
+                        chatViewModel = chatViewModel,
+                        chatId = chatId!!
+                    )
                 }
                 composable(Screen.FinderScreen.route) { FinderScreen(navController) }
                 composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
