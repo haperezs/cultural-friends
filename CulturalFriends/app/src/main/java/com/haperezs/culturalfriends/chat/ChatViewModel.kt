@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.haperezs.culturalfriends.finder.PeopleMarker
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,10 +26,23 @@ class ChatViewModel : ViewModel() {
     private val _chats = MutableStateFlow<List<Chat?>>(emptyList())
     val chats: StateFlow<List<Chat?>> = _chats
 
+    // To display the correct name of the person you are chatting with in the topbar
+    private val _currentChat = MutableStateFlow<String?>(null)
+    val currentChat: StateFlow<String?> = _currentChat
+
+    private val _messages = MutableStateFlow<List<Message?>>(emptyList())
+    val messages: StateFlow<List<Message?>> = _messages
+
+    fun updateCurrentChat(newChat: String) {
+        _currentChat.value = newChat
+        Log.d(javaClass.simpleName, "Updated currentChat to ${currentChat.value}")
+    }
+
     private fun fetchChats() {
         auth.currentUser?.let { user ->
             db.collection("chats")
                 .whereArrayContains("users", user.uid)
+                .orderBy("lastMessageTimestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener { documents, e ->
                     if (e != null || documents == null) {
                         Log.d(javaClass.simpleName, "Error fetching user chats. $e")
@@ -42,7 +56,6 @@ class ChatViewModel : ViewModel() {
 
                         if (otherUserId != null) {
                             fetchOtherUserName(otherUserId) { otherUserName ->
-                                Log.d("fetchOtherUserName", "Received an update")
                                 if (otherUserName != null) {
                                     chat.otherUserName = otherUserName
 
@@ -54,7 +67,6 @@ class ChatViewModel : ViewModel() {
                                     } else {
                                         updatedList.add(chat)
                                     }
-                                    Log.d("fetchOtherUserName", "Updated list: $updatedList")
                                     _chats.value = updatedList
                                 }
                             }
@@ -82,4 +94,24 @@ class ChatViewModel : ViewModel() {
                 onResult(document.getString("name"))
             }
     }
+
+    fun fetchMessages(chatId: String) {
+        db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .addSnapshotListener { documents, e ->
+                if (e != null || documents == null) {
+                    Log.d(javaClass.simpleName, "Error fetching chat messages. $e")
+                    return@addSnapshotListener
+                }
+                Log.d(javaClass.simpleName, "Success fetching chat messages")
+                _messages.value = emptyList()
+                for (doc in documents) {
+                    val message = doc.toObject(Message::class.java).copy(id = doc.id)
+                    _messages.value += message
+                }
+            }
+    }
+
 }

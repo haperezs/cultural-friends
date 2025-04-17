@@ -31,13 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 
 @Composable
 fun ChatScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
-    chatViewModel: ChatViewModel = viewModel()
+    chatViewModel: ChatViewModel
 ) {
     val chats by chatViewModel.chats.collectAsStateWithLifecycle()
     val userId by authViewModel.userId.collectAsStateWithLifecycle()
@@ -56,6 +57,8 @@ fun ChatScreen(
                         .fillMaxWidth()
                         .clickable {
                             Log.d("Chat row", "Clicked chat $chat")
+                            chatViewModel.updateCurrentChat(chat.otherUserName)
+                            navController.navigate(Screen.ChatSingleScreen.createRoute(chat.id))
                         }
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically

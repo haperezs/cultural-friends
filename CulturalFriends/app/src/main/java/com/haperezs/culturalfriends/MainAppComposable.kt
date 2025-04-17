@@ -19,18 +19,23 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.haperezs.culturalfriends.auth.AuthScreen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.chat.ChatScreen
+import com.haperezs.culturalfriends.chat.ChatSingleScreen
+import com.haperezs.culturalfriends.chat.ChatViewModel
 import com.haperezs.culturalfriends.finder.FinderScreen
 import com.haperezs.culturalfriends.translate.TranslateScreen
 
@@ -43,12 +48,16 @@ class BottomNavigationItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppComposable() {
+fun MainAppComposable(
+    chatViewModel: ChatViewModel = viewModel()
+) {
+    val currentChat by chatViewModel.currentChat.collectAsStateWithLifecycle()
+
     val items = listOf(
         BottomNavigationItem(
             title = "Chats",
             icon = Icons.Outlined.ChatBubbleOutline,
-            badge = true,
+            badge = false,
             route = Screen.ChatScreen.route
         ),
         BottomNavigationItem(
@@ -69,22 +78,29 @@ fun MainAppComposable() {
     val currentRoute = currentBackStackEntry?.destination?.route
 
     // Routes where back arrow is shown
-    val backArrowRoutes = listOf(Screen.SettingsScreen.route)
+    val backArrowRoutes = listOf(Screen.ChatSingleScreen.route, Screen.SettingsScreen.route)
     val canNavigateBack = currentRoute in backArrowRoutes
+
+    val title = when (currentRoute) {
+        Screen.AuthScreen.route -> "Cultural Friends"
+        Screen.ChatScreen.route -> "Chats"
+        Screen.ChatSingleScreen.route -> currentChat?: "Chat"
+        Screen.FinderScreen.route -> "Finder"
+        Screen.SettingsScreen.route -> "Settings"
+        Screen.TranslateScreen.route -> "Translate"
+        else -> "Cultural Friends"
+    }
+
+    LaunchedEffect(currentChat) {
+        Log.d("TopBar", "CurrentChatName: $currentChat")
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = when (currentRoute) {
-                            Screen.AuthScreen.route -> "Cultural Friends"
-                            Screen.ChatScreen.route -> "Chats"
-                            Screen.FinderScreen.route -> "Finder"
-                            Screen.TranslateScreen.route -> "Translate"
-                            Screen.TranslateScreen.route -> "Settings"
-                            else -> "Cultural Friends"
-                        }
+                        text = title
                     )
                 },
                 actions = {
@@ -162,10 +178,17 @@ fun MainAppComposable() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Screen.AuthScreen.route) { AuthScreen(navController) }
-                composable(Screen.ChatScreen.route) { ChatScreen(navController) }
+                composable(Screen.ChatScreen.route) { ChatScreen(navController, chatViewModel = chatViewModel) }
+                composable(
+                    route = Screen.ChatSingleScreen.route,
+                    arguments = listOf(navArgument("chatId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val chatId = backStackEntry.arguments?.getString("chatId")
+                    ChatSingleScreen(navController, chatViewModel = chatViewModel, chatId = chatId!!)
+                }
                 composable(Screen.FinderScreen.route) { FinderScreen(navController) }
-                composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
                 composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
+                composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
             }
         }
     )
