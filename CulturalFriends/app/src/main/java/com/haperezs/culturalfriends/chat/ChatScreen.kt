@@ -31,16 +31,26 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.haperezs.culturalfriends.auth.AuthViewModel
 
 @Composable
 fun ChatScreen(
     navController: NavController,
+    authViewModel: AuthViewModel = viewModel(),
     chatViewModel: ChatViewModel = viewModel()
 ) {
     val chats by chatViewModel.chats.collectAsStateWithLifecycle()
+    val userId by authViewModel.userId.collectAsStateWithLifecycle()
+
     LazyColumn {
         items(chats) { chat ->
             if (chat != null) {
+                val lastMessageText = if (chat.lastMessageBy == userId){
+                    "You: ${chat.lastMessage}"
+                } else {
+                    chat.lastMessage
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -70,13 +80,13 @@ fun ChatScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Teofilo",
+                            text = chat.otherUserName,
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = chat.lastMessage,
+                            text = lastMessageText,
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Gray,
                             maxLines = 1,

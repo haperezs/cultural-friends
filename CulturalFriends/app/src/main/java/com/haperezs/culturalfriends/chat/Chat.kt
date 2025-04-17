@@ -6,8 +6,10 @@ data class Chat(
     val id: String = "",
     val lastMessage: String = "",
     val lastMessageTimestamp: Timestamp = Timestamp.now(),
+    val lastMessageBy: String = "",
     val users: List<String> = emptyList(),
-    val messages: List<Message?> = emptyList()
+    val messages: List<Message?> = emptyList(),
+    var otherUserName: String = ""
 ) { }
 
 data class Message(

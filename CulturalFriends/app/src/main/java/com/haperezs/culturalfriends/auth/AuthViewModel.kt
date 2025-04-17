@@ -22,6 +22,10 @@ class AuthViewModel : ViewModel() {
     private val _displayName = MutableStateFlow(auth.currentUser?.displayName ?: "")
     val displayName: StateFlow<String> = _displayName
 
+    // Used to get the uid of the user logged in
+    private val _userId = MutableStateFlow(auth.currentUser?.uid ?: "")
+    val userId: StateFlow<String> = _userId
+
     fun login(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
         if (email.isBlank()){
             Log.d(javaClass.simpleName, "No email provided")

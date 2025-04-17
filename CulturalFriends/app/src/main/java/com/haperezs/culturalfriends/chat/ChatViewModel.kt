@@ -1,6 +1,7 @@
 package com.haperezs.culturalfriends.chat
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
@@ -25,9 +26,9 @@ class ChatViewModel : ViewModel() {
     val chats: StateFlow<List<Chat?>> = _chats
 
     private fun fetchChats() {
-        auth.currentUser?.let {
+        auth.currentUser?.let { user ->
             db.collection("chats")
-                .whereArrayContains("users", it.uid)
+                .whereArrayContains("users", user.uid)
                 .addSnapshotListener { documents, e ->
                     if (e != null || documents == null) {
                         Log.d(javaClass.simpleName, "Error fetching user chats. $e")
@@ -37,10 +38,48 @@ class ChatViewModel : ViewModel() {
                     _chats.value = emptyList()
                     for (doc in documents) {
                         val chat = doc.toObject(Chat::class.java).copy(id = doc.id)
-                        Log.d(javaClass.simpleName, "Found chat: $chat")
-                        _chats.value += chat
+                        val otherUserId = chat.users.firstOrNull { it != auth.currentUser!!.uid }
+
+                        if (otherUserId != null) {
+                            fetchOtherUserName(otherUserId) { otherUserName ->
+                                Log.d("fetchOtherUserName", "Received an update")
+                                if (otherUserName != null) {
+                                    chat.otherUserName = otherUserName
+
+                                    val updatedList = _chats.value.toMutableList()
+                                    val index = updatedList.indexOfFirst { it?.id == chat.id }
+
+                                    if (index != -1) {
+                                        updatedList[index] = chat
+                                    } else {
+                                        updatedList.add(chat)
+                                    }
+                                    Log.d("fetchOtherUserName", "Updated list: $updatedList")
+                                    _chats.value = updatedList
+                                }
+                            }
+                        }
                     }
                 }
         }
+    }
+
+    private fun fetchOtherUserName(otherUserId: String, onResult: (String?) -> Unit) {
+        db.collection("people")
+            .whereEqualTo("uid", otherUserId)
+            .limit(1)
+            .addSnapshotListener { querySnapshot, e ->
+                if (e != null) {
+                    Log.d(javaClass.simpleName, "Error fetching other user display name. $e")
+                    return@addSnapshotListener
+                }
+                if (querySnapshot == null || querySnapshot.size() == 0) {
+                    Log.d(javaClass.simpleName, "No public marker for other user found.")
+                    return@addSnapshotListener
+                }
+                val document = querySnapshot.documents[0]
+                Log.d(javaClass.simpleName, "Success fetching other user display name: ${document.getString("name")}")
+                onResult(document.getString("name"))
+            }
     }
 }
