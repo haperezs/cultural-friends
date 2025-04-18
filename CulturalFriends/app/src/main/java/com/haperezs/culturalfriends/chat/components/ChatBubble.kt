@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.haperezs.culturalfriends.chat.Message
+import com.haperezs.culturalfriends.model.Message
 
 @Composable
 fun ChatBubble(

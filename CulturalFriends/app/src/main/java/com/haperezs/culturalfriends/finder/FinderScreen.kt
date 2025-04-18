@@ -10,8 +10,6 @@ import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAddAlt1
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -31,23 +29,21 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
+import com.haperezs.culturalfriends.model.PeopleMarker
 
 @Composable
 fun FinderScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel(),
     finderViewModel: FinderViewModel = viewModel()
 ) {
     val iconColor = Color(0xFF1565C0)
     val defaultInfo = PeopleMarker("0", 0.0,0.0,"Placeholder", "0")
     val defaultTarget = LatLng(47.607616036871896, -122.31669998841178)
 
-    val displayName by authViewModel.displayName.collectAsStateWithLifecycle()
     val previewMarker by finderViewModel.previewMarker.collectAsStateWithLifecycle()
     val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
     val peopleMarkers by finderViewModel.peopleMarkers.collectAsStateWithLifecycle()
 
-    var isMapLoaded by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
     var selectedMarkerInfo by remember { mutableStateOf(defaultInfo) }
 
@@ -80,10 +76,6 @@ fun FinderScreen(
         ) {
             GoogleMap(
                 cameraPositionState = cameraPositionState,
-                onMapLoaded = {
-                    Log.d("GoogleMap", "Map loaded")
-                    var isMapLoaded = true
-                },
                 uiSettings = MapUiSettings(
                     zoomControlsEnabled = false
                 ),
@@ -154,21 +146,23 @@ fun FinderScreen(
                     }
                 }
             }
-            FloatingActionButton(
-                onClick = {
-                    finderViewModel.publicMarkerCentered = false
-                    finderViewModel.updatePublicMarker(previewMarker!!)
-                    finderViewModel.updatePreviewMarker(null)
-                },
-                shape = CircleShape,
-                modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PersonAddAlt1,
-                    contentDescription = "Add public marker button"
-                )
+            if (previewMarker != null) {
+                FloatingActionButton(
+                    onClick = {
+                        finderViewModel.publicMarkerCentered = false
+                        finderViewModel.updatePublicMarker(previewMarker!!)
+                        finderViewModel.updatePreviewMarker(null)
+                    },
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PersonAddAlt1,
+                        contentDescription = "Add public marker button"
+                    )
+                }
             }
             if (showInfo) {
                 Box (

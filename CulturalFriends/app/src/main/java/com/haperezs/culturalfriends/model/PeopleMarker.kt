@@ -1,4 +1,4 @@
-package com.haperezs.culturalfriends.finder
+package com.haperezs.culturalfriends.model
 
 import com.google.android.gms.maps.model.LatLng
 

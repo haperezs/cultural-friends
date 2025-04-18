@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
+import com.haperezs.culturalfriends.utils.formatTimestamp
 
 @Composable
 fun ChatScreen(

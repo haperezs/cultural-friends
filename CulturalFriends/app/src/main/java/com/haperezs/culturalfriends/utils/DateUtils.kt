@@ -1,4 +1,4 @@
-package com.haperezs.culturalfriends.chat
+package com.haperezs.culturalfriends.utils
 
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
