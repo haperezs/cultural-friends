@@ -16,9 +16,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,22 +47,85 @@ fun ChatScreen(
     chatViewModel: ChatViewModel
 ) {
     val chats by chatViewModel.chats.collectAsStateWithLifecycle()
+    val chatRequests by chatViewModel.chatRequests.collectAsStateWithLifecycle()
     val userId by authViewModel.userId.collectAsStateWithLifecycle()
 
     LazyColumn {
+        items(chatRequests) { chatRequest ->
+            if (chatRequest != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = chatRequest.otherUserName,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "Incoming chat request",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    IconButton(
+                        onClick = {
+                            chatViewModel.denyChatRequest(chatRequest)
+                        },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector =  Icons.Filled.Cancel,
+                            contentDescription = "Deny chat request",
+                            tint = MaterialTheme.colorScheme.inversePrimary,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    IconButton(
+                        onClick = {
+                            chatViewModel.acceptChatRequest(chatRequest)
+                        },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = "Accept chat request",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+                HorizontalDivider()
+            }
+        }
         items(chats) { chat ->
             if (chat != null) {
                 val lastMessageText = if (chat.lastMessageBy == userId){
                     "You: ${chat.lastMessage}"
-                } else {
+                } else if (chat.lastMessage.isNotBlank()){
                     chat.lastMessage
+                } else {
+                    "> Be the first to chat!"
                 }
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            Log.d("Chat row", "Clicked chat $chat")
                             chatViewModel.updateCurrentChat(chat.otherUserName)
                             navController.navigate(Screen.ChatSingleScreen.createRoute(chat.id))
                         }
@@ -72,7 +140,7 @@ fun ChatScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Person,
-                            contentDescription = "User info window icon",
+                            contentDescription = "Chat row icon",
                             tint = Color.White,
                             modifier = Modifier.fillMaxSize()
                         )

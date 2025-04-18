@@ -6,9 +6,11 @@ import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.haperezs.culturalfriends.model.Chat
+import com.haperezs.culturalfriends.model.ChatRequest
 import com.haperezs.culturalfriends.model.Message
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +26,9 @@ class ChatViewModel : ViewModel() {
     private val _chats = MutableStateFlow<List<Chat?>>(emptyList())
     val chats: StateFlow<List<Chat?>> = _chats
 
+    private val _chatRequests = MutableStateFlow<List<ChatRequest?>>(emptyList())
+    val chatRequests: StateFlow<List<ChatRequest?>> = _chatRequests
+
     // To display the correct name of the person you are chatting with in the topbar
     private val _currentChat = MutableStateFlow<String?>(null)
     val currentChat: StateFlow<String?> = _currentChat
@@ -37,8 +42,10 @@ class ChatViewModel : ViewModel() {
             val user = firebaseAuth.currentUser
             if (user != null) {
                 fetchChats()
+                fetchChatRequests()
             } else {
                 _chats.value = emptyList()
+                _chatRequests.value = emptyList()
             }
         }
     }
@@ -86,6 +93,102 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    private fun fetchChatRequests() {
+        auth.currentUser?.let { user ->
+            db.collection("chatRequests")
+                .whereEqualTo("to", user.uid)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .addSnapshotListener { documents, e ->
+                    if (e != null || documents == null) {
+                        Log.d(javaClass.simpleName, "Error fetching user chat requests. $e")
+                        return@addSnapshotListener
+                    }
+                    Log.d(javaClass.simpleName, "Success fetching user chat requests")
+                    _chatRequests.value = emptyList()
+                    for (doc in documents) {
+                        val chatRequest = doc.toObject(ChatRequest::class.java).copy(id = doc.id)
+                        val otherUserId = chatRequest.from
+
+                        fetchOtherUserName(otherUserId) { otherUserName ->
+                            if (otherUserName != null) {
+                                chatRequest.otherUserName = otherUserName
+
+                                val updatedList = _chatRequests.value.toMutableList()
+                                val index = updatedList.indexOfFirst { it?.id == chatRequest.id }
+
+                                if (index != -1) {
+                                    updatedList[index] = chatRequest
+                                } else {
+                                    updatedList.add(chatRequest)
+                                }
+                                _chatRequests.value = updatedList
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    fun sendChatRequest(otherUserId: String){
+        Log.d(javaClass.simpleName, "Sending chat request.")
+        val updates = mapOf(
+            "to" to otherUserId,
+            "from" to auth.currentUser!!.uid,
+            "timestamp" to Timestamp.now(),
+        )
+
+        db.collection("chatRequests")
+            .add(updates)
+            .addOnSuccessListener {
+                Log.d(javaClass.simpleName, "Created new chat request.")
+            }
+            .addOnFailureListener { e ->
+                Log.w(javaClass.simpleName, "Error creating new chat request. $e")
+            }
+    }
+
+    // Create a new chat between both users and remove the chatRequest
+    fun acceptChatRequest(chatRequest: ChatRequest){
+        Log.d(javaClass.simpleName, "Accepting chat request.")
+        val updates = mapOf(
+            "lastMessageTimestamp" to Timestamp.now(),
+            "users" to FieldValue.arrayUnion(chatRequest.to, chatRequest.from)
+        )
+
+        db.collection("chats")
+            .add(updates)
+            .addOnSuccessListener {
+                Log.d(javaClass.simpleName, "Accepted request and created new chat.")
+            }
+            .addOnFailureListener { e ->
+                Log.w(javaClass.simpleName, "Error accepting request and creating new chat. $e")
+            }
+
+        db.collection("chatRequests")
+            .document(chatRequest.id)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(javaClass.simpleName, "Accepted request and deleted chat request.")
+            }
+            .addOnFailureListener { e ->
+                Log.w(javaClass.simpleName, "Error accepting request and deleting chat request. $e")
+            }
+    }
+
+    fun denyChatRequest(chatRequest: ChatRequest){
+        Log.d(javaClass.simpleName, "Denying chat request.")
+
+        db.collection("chatRequests")
+            .document(chatRequest.id)
+            .delete()
+            .addOnSuccessListener {
+                Log.d(javaClass.simpleName, "Denied and deleted chat request.")
+            }
+            .addOnFailureListener { e ->
+                Log.w(javaClass.simpleName, "Error denying and deleting chat request. $e")
+            }
+    }
+
     private fun fetchOtherUserName(otherUserId: String, onResult: (String?) -> Unit) {
         db.collection("people")
             .whereEqualTo("uid", otherUserId)
@@ -100,7 +203,6 @@ class ChatViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
                 val document = querySnapshot.documents[0]
-                Log.d(javaClass.simpleName, "Success fetching other user display name: ${document.getString("name")}")
                 onResult(document.getString("name"))
             }
     }

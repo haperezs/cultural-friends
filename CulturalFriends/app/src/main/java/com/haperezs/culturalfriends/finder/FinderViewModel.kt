@@ -116,6 +116,11 @@ class FinderViewModel : ViewModel() {
                 _peopleMarkers.value = emptyList()
                 for (doc in documents) {
                     val marker = doc.toObject(PeopleMarker::class.java).copy(id = doc.id)
+                    if (marker.uid == auth.currentUser?.uid){
+                        // Prevent the user from starting chats with itself
+                        marker.canSendRequest = false
+                        marker.chatRequestButtonText = "Your marker"
+                    }
                     _peopleMarkers.value += marker
                 }
             }

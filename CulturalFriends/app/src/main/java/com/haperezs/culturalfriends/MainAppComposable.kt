@@ -136,7 +136,6 @@ fun MainAppComposable() {
                         NavigationBarItem(
                             selected = currentRoute == item.route,
                             onClick = {
-                                Log.d(javaClass.simpleName, "Navigate to ${item.title}")
                                 navController.navigate(item.route){
                                     launchSingleTop = true
                                     restoreState = true
@@ -193,7 +192,12 @@ fun MainAppComposable() {
                         chatId = chatId!!
                     )
                 }
-                composable(Screen.FinderScreen.route) { FinderScreen(navController) }
+                composable(Screen.FinderScreen.route) {
+                    FinderScreen(
+                        navController,
+                        chatViewModel = chatViewModel
+                    )
+                }
                 composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
                 composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
             }

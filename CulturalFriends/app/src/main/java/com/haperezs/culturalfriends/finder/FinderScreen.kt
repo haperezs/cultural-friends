@@ -29,11 +29,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
+import com.haperezs.culturalfriends.chat.ChatViewModel
 import com.haperezs.culturalfriends.model.PeopleMarker
 
 @Composable
 fun FinderScreen(
     navController: NavController,
+    chatViewModel: ChatViewModel,
     finderViewModel: FinderViewModel = viewModel()
 ) {
     val iconColor = Color(0xFF1565C0)
@@ -199,17 +201,15 @@ fun FinderScreen(
                         ) {
                             OutlinedButton(
                                 onClick = {
-                                    navController.navigate(Screen.ChatScreen.route){
-                                        launchSingleTop = true
-                                        restoreState = true
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                    }
+                                    chatViewModel.sendChatRequest(selectedMarkerInfo.uid)
+                                    selectedMarkerInfo.canSendRequest = false
+                                    selectedMarkerInfo.chatRequestButtonText = "Request sent"
+                                    Log.d(javaClass.simpleName, selectedMarkerInfo.toString())
                                 },
+                                enabled = selectedMarkerInfo.canSendRequest
                             ) {
                                 Text(
-                                    text = "Start chat",
+                                    text = selectedMarkerInfo.chatRequestButtonText,
                                     modifier = Modifier
                                         .padding(4.dp, 0.dp),
                                     color = Color.White,
