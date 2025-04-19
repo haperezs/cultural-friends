@@ -7,6 +7,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.haperezs.culturalfriends.model.Language
+import com.haperezs.culturalfriends.model.PeopleMarker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,20 +16,33 @@ import kotlinx.coroutines.launch
 class TranslateViewModel : ViewModel() {
     private var repository: TranslateRepository = TranslateRepository()
 
-    private val _inputText = MutableStateFlow<String?>(null)
+    init {
+        fetchSupportedLanguages()
+    }
+    private val _languages = MutableStateFlow<List<Language?>>(emptyList())
+    val languages: StateFlow<List<Language?>> = _languages
+
+    private val _inputText = MutableStateFlow<String?>("")
     val inputText: StateFlow<String?> = _inputText
 
-    private val _outputText = MutableStateFlow<String?>(null)
+    private val _outputText = MutableStateFlow<String?>("")
     val outputText: StateFlow<String?> = _outputText
 
-    private val _sourceLang = MutableStateFlow<String?>("es")
-    val sourceLang: StateFlow<String?> = _sourceLang
+    private val _sourceLang = MutableStateFlow<Language?>(Language("es", "Spanish"))
+    val sourceLang: StateFlow<Language?> = _sourceLang
 
-    private val _targetLang = MutableStateFlow<String?>("en")
-    val targetLang: StateFlow<String?> = _targetLang
+    private val _targetLang = MutableStateFlow<Language?>(Language("en", "English"))
+    val targetLang: StateFlow<Language?> = _targetLang
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private fun fetchSupportedLanguages() {
+        viewModelScope.launch {
+            val result = repository.fetchSupportedLanguages()
+            _languages.value = result
+        }
+    }
 
     fun changeInputText(text: String?) {
         _inputText.value = text
@@ -37,11 +52,24 @@ class TranslateViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             val input = _inputText.value ?: ""
-            val source = _sourceLang.value
-            val target = _targetLang.value ?: "English"
-            val result = repository.translateText(input, target)
+            val source = _sourceLang.value?.language ?: "es"
+            val target = _targetLang.value?.language ?: "en"
+            val result = repository.translateText(input, source, target)
             _isLoading.value = false
-            Log.d(javaClass.simpleName, "Translated: $result")
+            _outputText.value = result
         }
+    }
+
+    fun updateSourceLanguage(language: Language){
+        _sourceLang.value = language
+    }
+
+    fun updateTargetLanguage(language: Language){
+        _targetLang.value = language
+    }
+
+    fun swapSourceAndTargetLanguage(){
+        _sourceLang.value = _targetLang.value.also { _targetLang.value = _sourceLang.value }
+        _inputText.value = _outputText.value.also { _outputText.value = _inputText.value }
     }
 }
