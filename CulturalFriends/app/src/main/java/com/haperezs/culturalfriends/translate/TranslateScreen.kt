@@ -30,17 +30,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.Screen
+import com.haperezs.culturalfriends.chat.ChatViewModel
 
 @Composable
 fun TranslateScreen(
-    navController: NavController
+    navController: NavController,
+    translateViewModel: TranslateViewModel,
 ) {
-    var inputText by remember { mutableStateOf("") }
-    var outputText by remember { mutableStateOf("Translation") }
-    var sourceLang by remember { mutableStateOf("English") }
-    var targetLang by remember { mutableStateOf("Spanish") }
+    val inputText by translateViewModel.inputText.collectAsStateWithLifecycle()
+    val outputText by translateViewModel.outputText.collectAsStateWithLifecycle()
+    val sourceLang by translateViewModel.sourceLang.collectAsStateWithLifecycle()
+    val targetLang by translateViewModel.targetLang.collectAsStateWithLifecycle()
+    val isLoading by translateViewModel.isLoading.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -59,14 +64,12 @@ fun TranslateScreen(
                             .padding(4.dp)
                             .weight(1f)
             ) {
-                Text(sourceLang)
+                Text(targetLang ?: "Spanish")
                 Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Source language")
             }
 
             IconButton(onClick = {
-                val temp = sourceLang
-                sourceLang = targetLang
-                targetLang = temp
+                Log.d("Henlo","Switch languages")
             }) {
                 Icon(imageVector = Icons.Default.SwapHoriz, contentDescription = "Swap languages")
             }
@@ -79,8 +82,8 @@ fun TranslateScreen(
                             .padding(4.dp)
                             .weight(1f)
             ) {
-                Text(targetLang)
-                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Source language")
+                Text(targetLang ?: "English")
+                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Target language")
             }
         }
 
@@ -91,8 +94,8 @@ fun TranslateScreen(
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             TextField(
-                value = inputText,
-                onValueChange = { inputText = it },
+                value = inputText?: "",
+                onValueChange = { translateViewModel.changeInputText(it) },
                 modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),
@@ -113,7 +116,11 @@ fun TranslateScreen(
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             TextField(
-                value = outputText,
+                value = when {
+                    isLoading -> "Translating..."
+                    inputText != null -> "$outputText"
+                    else -> ""
+                },
                 onValueChange = { },
                 modifier = Modifier
                             .fillMaxWidth()
@@ -134,6 +141,7 @@ fun TranslateScreen(
         Button (
             onClick = {
                 Log.d(javaClass.simpleName, "Translate")
+                translateViewModel.translateText()
             },
             modifier = Modifier.fillMaxWidth(),
         ) {

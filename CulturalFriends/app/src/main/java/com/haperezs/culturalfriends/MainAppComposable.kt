@@ -39,6 +39,7 @@ import com.haperezs.culturalfriends.chat.ChatSingleScreen
 import com.haperezs.culturalfriends.chat.ChatViewModel
 import com.haperezs.culturalfriends.finder.FinderScreen
 import com.haperezs.culturalfriends.translate.TranslateScreen
+import com.haperezs.culturalfriends.translate.TranslateViewModel
 
 class BottomNavigationItem(
     val title: String,
@@ -52,6 +53,7 @@ class BottomNavigationItem(
 fun MainAppComposable() {
     val authViewModel = viewModel<AuthViewModel>()
     val chatViewModel = viewModel<ChatViewModel>()
+    val translateViewModel = viewModel<TranslateViewModel>()
 
     val currentChat by chatViewModel.currentChat.collectAsStateWithLifecycle()
     val user by authViewModel.authState.collectAsStateWithLifecycle()
@@ -199,7 +201,12 @@ fun MainAppComposable() {
                     )
                 }
                 composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
-                composable(Screen.TranslateScreen.route) { TranslateScreen(navController) }
+                composable(Screen.TranslateScreen.route) {
+                    TranslateScreen(
+                        navController,
+                        translateViewModel = translateViewModel
+                    )
+                }
             }
         }
     )
