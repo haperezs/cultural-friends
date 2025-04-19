@@ -20,10 +20,10 @@ class TranslateViewModel : ViewModel() {
     private val _outputText = MutableStateFlow<String?>(null)
     val outputText: StateFlow<String?> = _outputText
 
-    private val _sourceLang = MutableStateFlow<String?>("Spanish")
+    private val _sourceLang = MutableStateFlow<String?>("es")
     val sourceLang: StateFlow<String?> = _sourceLang
 
-    private val _targetLang = MutableStateFlow<String?>("English")
+    private val _targetLang = MutableStateFlow<String?>("en")
     val targetLang: StateFlow<String?> = _targetLang
 
     private val _isLoading = MutableStateFlow(false)
@@ -39,14 +39,9 @@ class TranslateViewModel : ViewModel() {
             val input = _inputText.value ?: ""
             val source = _sourceLang.value
             val target = _targetLang.value ?: "English"
-            val result = repository!!.translateText(input, target, source)
+            val result = repository.translateText(input, target)
             _isLoading.value = false
-
-            result.onSuccess {
-                _outputText.value = it
-            }.onFailure {
-                Log.d(javaClass.simpleName, "Failed to get translation.")
-            }
+            Log.d(javaClass.simpleName, "Translated: $result")
         }
     }
 }
