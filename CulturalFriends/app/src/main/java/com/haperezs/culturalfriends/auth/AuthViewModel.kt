@@ -15,7 +15,7 @@ class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
 
     // Used to validate if a user is logged in
-    private val _authState = MutableStateFlow<FirebaseUser?>(auth.currentUser)
+    private val _authState = MutableStateFlow(auth.currentUser)
     val authState: StateFlow<FirebaseUser?> = _authState
 
     // Used to display the name of the user logged in

@@ -23,18 +23,18 @@ class ChatViewModel : ViewModel() {
         observeAuthChanges()
     }
 
-    private val _chats = MutableStateFlow<List<Chat?>>(emptyList())
-    val chats: StateFlow<List<Chat?>> = _chats
+    private val _chats = MutableStateFlow<List<Chat>>(emptyList())
+    val chats: StateFlow<List<Chat>> = _chats
 
-    private val _chatRequests = MutableStateFlow<List<ChatRequest?>>(emptyList())
-    val chatRequests: StateFlow<List<ChatRequest?>> = _chatRequests
+    private val _chatRequests = MutableStateFlow<List<ChatRequest>>(emptyList())
+    val chatRequests: StateFlow<List<ChatRequest>> = _chatRequests
 
     // To display the correct name of the person you are chatting with in the topbar
-    private val _currentChat = MutableStateFlow<String?>(null)
-    val currentChat: StateFlow<String?> = _currentChat
+    private val _currentChat = MutableStateFlow("")
+    val currentChat: StateFlow<String> = _currentChat
 
-    private val _messages = MutableStateFlow<List<Message?>>(emptyList())
-    val messages: StateFlow<List<Message?>> = _messages
+    private val _messages = MutableStateFlow<List<Message>>(emptyList())
+    val messages: StateFlow<List<Message>> = _messages
 
     // Observe auth status to reload chats if the user logs out
     private fun observeAuthChanges() {
@@ -52,7 +52,6 @@ class ChatViewModel : ViewModel() {
 
     fun updateCurrentChat(newChat: String) {
         _currentChat.value = newChat
-        Log.d(javaClass.simpleName, "Updated currentChat to ${currentChat.value}")
     }
 
     private fun fetchChats() {
@@ -62,7 +61,7 @@ class ChatViewModel : ViewModel() {
                 .orderBy("lastMessageTimestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener { documents, e ->
                     if (e != null || documents == null) {
-                        Log.d(javaClass.simpleName, "Error fetching user chats. $e")
+                        Log.e(javaClass.simpleName, "Error fetching user chats. $e")
                         return@addSnapshotListener
                     }
                     Log.d(javaClass.simpleName, "Success fetching user chats")
@@ -77,7 +76,7 @@ class ChatViewModel : ViewModel() {
                                     chat.otherUserName = otherUserName
 
                                     val updatedList = _chats.value.toMutableList()
-                                    val index = updatedList.indexOfFirst { it?.id == chat.id }
+                                    val index = updatedList.indexOfFirst { it.id == chat.id }
 
                                     if (index != -1) {
                                         updatedList[index] = chat
@@ -100,7 +99,7 @@ class ChatViewModel : ViewModel() {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener { documents, e ->
                     if (e != null || documents == null) {
-                        Log.d(javaClass.simpleName, "Error fetching user chat requests. $e")
+                        Log.e(javaClass.simpleName, "Error fetching user chat requests. $e")
                         return@addSnapshotListener
                     }
                     Log.d(javaClass.simpleName, "Success fetching user chat requests")
@@ -114,7 +113,7 @@ class ChatViewModel : ViewModel() {
                                 chatRequest.otherUserName = otherUserName
 
                                 val updatedList = _chatRequests.value.toMutableList()
-                                val index = updatedList.indexOfFirst { it?.id == chatRequest.id }
+                                val index = updatedList.indexOfFirst { it.id == chatRequest.id }
 
                                 if (index != -1) {
                                     updatedList[index] = chatRequest
@@ -130,7 +129,6 @@ class ChatViewModel : ViewModel() {
     }
 
     fun sendChatRequest(otherUserId: String){
-        Log.d(javaClass.simpleName, "Sending chat request.")
         val updates = mapOf(
             "to" to otherUserId,
             "from" to auth.currentUser!!.uid,
@@ -143,13 +141,12 @@ class ChatViewModel : ViewModel() {
                 Log.d(javaClass.simpleName, "Created new chat request.")
             }
             .addOnFailureListener { e ->
-                Log.w(javaClass.simpleName, "Error creating new chat request. $e")
+                Log.e(javaClass.simpleName, "Error creating new chat request. $e")
             }
     }
 
     // Create a new chat between both users and remove the chatRequest
     fun acceptChatRequest(chatRequest: ChatRequest){
-        Log.d(javaClass.simpleName, "Accepting chat request.")
         val updates = mapOf(
             "lastMessageTimestamp" to Timestamp.now(),
             "users" to FieldValue.arrayUnion(chatRequest.to, chatRequest.from)
@@ -161,7 +158,7 @@ class ChatViewModel : ViewModel() {
                 Log.d(javaClass.simpleName, "Accepted request and created new chat.")
             }
             .addOnFailureListener { e ->
-                Log.w(javaClass.simpleName, "Error accepting request and creating new chat. $e")
+                Log.e(javaClass.simpleName, "Error accepting request and creating new chat. $e")
             }
 
         db.collection("chatRequests")
@@ -171,13 +168,11 @@ class ChatViewModel : ViewModel() {
                 Log.d(javaClass.simpleName, "Accepted request and deleted chat request.")
             }
             .addOnFailureListener { e ->
-                Log.w(javaClass.simpleName, "Error accepting request and deleting chat request. $e")
+                Log.e(javaClass.simpleName, "Error accepting request and deleting chat request. $e")
             }
     }
 
     fun denyChatRequest(chatRequest: ChatRequest){
-        Log.d(javaClass.simpleName, "Denying chat request.")
-
         db.collection("chatRequests")
             .document(chatRequest.id)
             .delete()
@@ -185,7 +180,7 @@ class ChatViewModel : ViewModel() {
                 Log.d(javaClass.simpleName, "Denied and deleted chat request.")
             }
             .addOnFailureListener { e ->
-                Log.w(javaClass.simpleName, "Error denying and deleting chat request. $e")
+                Log.e(javaClass.simpleName, "Error denying and deleting chat request. $e")
             }
     }
 
@@ -214,7 +209,7 @@ class ChatViewModel : ViewModel() {
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { documents, e ->
                 if (e != null || documents == null) {
-                    Log.d(javaClass.simpleName, "Error fetching chat messages. $e")
+                    Log.e(javaClass.simpleName, "Error fetching chat messages. $e")
                     return@addSnapshotListener
                 }
                 Log.d(javaClass.simpleName, "Success fetching chat messages")
@@ -227,7 +222,6 @@ class ChatViewModel : ViewModel() {
     }
 
     fun sendMessage(chatId: String, message: String){
-        Log.d(javaClass.simpleName, "Sending message.")
         val chatUpdates = mapOf(
             "lastMessage" to message,
             "lastMessageTimestamp" to Timestamp.now(),
@@ -247,7 +241,7 @@ class ChatViewModel : ViewModel() {
                 Log.d(javaClass.simpleName, "Updated last message info for chat $chatId")
             }
             .addOnFailureListener { e ->
-                Log.w(javaClass.simpleName, "Error updating last message info for chat $chatId. $e")
+                Log.e(javaClass.simpleName, "Error updating last message info for chat $chatId. $e")
             }
 
         db.collection("chats")
@@ -258,7 +252,7 @@ class ChatViewModel : ViewModel() {
                 Log.d(javaClass.simpleName, "Added message to chat $chatId")
             }
             .addOnFailureListener { e ->
-                Log.w(javaClass.simpleName, "Error adding message to chat $chatId. $e")
+                Log.e(javaClass.simpleName, "Error adding message to chat $chatId. $e")
             }
     }
 }

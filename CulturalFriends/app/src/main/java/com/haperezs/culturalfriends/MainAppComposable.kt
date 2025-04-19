@@ -1,6 +1,5 @@
 package com.haperezs.culturalfriends
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,9 +18,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,7 +86,7 @@ fun MainAppComposable() {
     val title = when (currentRoute) {
         Screen.AuthScreen.route -> "Cultural Friends"
         Screen.ChatScreen.route -> "Chats"
-        Screen.ChatSingleScreen.route -> currentChat?: "Chat"
+        Screen.ChatSingleScreen.route -> currentChat
         Screen.FinderScreen.route -> "Finder"
         Screen.SettingsScreen.route -> "Settings"
         Screen.TranslateScreen.route -> "Translate"
@@ -189,21 +186,18 @@ fun MainAppComposable() {
                 ) { backStackEntry ->
                     val chatId = backStackEntry.arguments?.getString("chatId")
                     ChatSingleScreen(
-                        navController,
                         chatViewModel = chatViewModel,
                         chatId = chatId!!
                     )
                 }
                 composable(Screen.FinderScreen.route) {
                     FinderScreen(
-                        navController,
                         chatViewModel = chatViewModel
                     )
                 }
                 composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
                 composable(Screen.TranslateScreen.route) {
                     TranslateScreen(
-                        navController,
                         translateViewModel = translateViewModel
                     )
                 }

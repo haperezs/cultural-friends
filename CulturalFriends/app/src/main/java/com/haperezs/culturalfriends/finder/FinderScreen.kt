@@ -1,6 +1,5 @@
 package com.haperezs.culturalfriends.finder
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -22,19 +21,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.haperezs.culturalfriends.Screen
-import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.chat.ChatViewModel
 import com.haperezs.culturalfriends.model.PeopleMarker
 
 @Composable
 fun FinderScreen(
-    navController: NavController,
     chatViewModel: ChatViewModel,
     finderViewModel: FinderViewModel = viewModel()
 ) {
@@ -109,39 +104,37 @@ fun FinderScreen(
                 }
 
                 peopleMarkers.forEach{marker ->
-                    if (marker != null) {
-                        key(marker.id + marker.name){
-                            MarkerComposable(
-                                state = MarkerState(position = marker.toLatLng()),
-                                onClick = {
-                                    selectedMarkerInfo = peopleMarkers.find { it?.id == marker.id }!!
-                                    showInfo = true
-                                    true
-                                }
-                            ) {
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                    key(marker.id + marker.name){
+                        MarkerComposable(
+                            state = MarkerState(position = marker.toLatLng()),
+                            onClick = {
+                                selectedMarkerInfo = peopleMarkers.find { it.id == marker.id }!!
+                                showInfo = true
+                                true
+                            }
+                        ) {
+                            Column (
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            )
+                            {
+                                Text(
+                                    text = marker.name,
+                                    color = Color.DarkGray,
+                                    modifier = Modifier
+                                        .background(Color.LightGray)
+                                        .padding(4.dp, 2.dp)
                                 )
-                                {
-                                    Text(
-                                        text = marker.name,
-                                        color = Color.DarkGray,
-                                        modifier = Modifier
-                                            .background(Color.LightGray)
-                                            .padding(4.dp, 2.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Accessibility,
+                                        contentDescription = "Public marker icon",
+                                        tint = iconColor,
+                                        modifier = Modifier.matchParentSize()
                                     )
-                                    Box(
-                                        modifier = Modifier
-                                            .size(48.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Accessibility,
-                                            contentDescription = "Public marker icon",
-                                            tint = iconColor,
-                                            modifier = Modifier.matchParentSize()
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -204,7 +197,6 @@ fun FinderScreen(
                                     chatViewModel.sendChatRequest(selectedMarkerInfo.uid)
                                     selectedMarkerInfo.canSendRequest = false
                                     selectedMarkerInfo.chatRequestButtonText = "Request sent"
-                                    Log.d(javaClass.simpleName, selectedMarkerInfo.toString())
                                 },
                                 enabled = selectedMarkerInfo.canSendRequest
                             ) {

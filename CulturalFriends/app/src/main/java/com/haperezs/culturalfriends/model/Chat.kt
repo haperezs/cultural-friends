@@ -11,4 +11,4 @@ data class Chat(
     val messages: List<Message?> = emptyList(),
     // Not part of the model in the db, but fetched in ChatViewModel
     var otherUserName: String = ""
-) { }
+)

@@ -1,6 +1,5 @@
 package com.haperezs.culturalfriends.translate
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,12 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.haperezs.culturalfriends.translate.components.LanguageSelector
 
 @Composable
 fun TranslateScreen(
-    navController: NavController,
     translateViewModel: TranslateViewModel,
 ) {
     val languages by translateViewModel.languages.collectAsStateWithLifecycle()
@@ -81,7 +78,7 @@ fun TranslateScreen(
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             TextField(
-                value = inputText?: "",
+                value = inputText,
                 onValueChange = { translateViewModel.changeInputText(it) },
                 modifier = Modifier
                             .fillMaxWidth()
@@ -105,7 +102,7 @@ fun TranslateScreen(
             TextField(
                 value = when {
                     isLoading -> "Translating..."
-                    else -> "$outputText"
+                    else -> outputText
                 },
                 onValueChange = { },
                 modifier = Modifier
@@ -126,7 +123,6 @@ fun TranslateScreen(
 
         Button (
             onClick = {
-                Log.d(javaClass.simpleName, "Translate")
                 translateViewModel.translateText()
             },
             modifier = Modifier.fillMaxWidth(),

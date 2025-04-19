@@ -53,7 +53,7 @@ fun AuthScreen(
                         .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Column() {
+            Column {
                 Button (
                     onClick = {
                         authViewModel.login(email, password) { success, error ->

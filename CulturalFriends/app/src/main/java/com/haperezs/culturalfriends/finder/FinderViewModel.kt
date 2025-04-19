@@ -33,8 +33,8 @@ class FinderViewModel : ViewModel() {
     var publicMarkerCentered = false
 
     // These are read from the db and updated by other people
-    private val _peopleMarkers = MutableStateFlow<List<PeopleMarker?>>(emptyList())
-    val peopleMarkers: StateFlow<List<PeopleMarker?>> = _peopleMarkers
+    private val _peopleMarkers = MutableStateFlow<List<PeopleMarker>>(emptyList())
+    val peopleMarkers: StateFlow<List<PeopleMarker>> = _peopleMarkers
 
     fun updatePreviewMarker(position: LatLng?) {
         _previewMarker.value = position
@@ -49,7 +49,7 @@ class FinderViewModel : ViewModel() {
             .limit(1)
             .addSnapshotListener { querySnapshot, e ->
                 if (e != null) {
-                    Log.d(javaClass.simpleName, "Error fetching user public marker. $e")
+                    Log.e(javaClass.simpleName, "Error fetching user public marker. $e")
                     return@addSnapshotListener
                 }
                 if (querySnapshot == null || querySnapshot.size() == 0) {
@@ -65,7 +65,6 @@ class FinderViewModel : ViewModel() {
 
     // If a current marker exists for the user update it, else create it
     fun updatePublicMarker(position: LatLng) {
-        Log.d(javaClass.simpleName, "Updating public marker.")
         val updates = mapOf(
             "latitude" to position.latitude,
             "longitude" to position.longitude,
@@ -86,14 +85,13 @@ class FinderViewModel : ViewModel() {
                     _publicMarkerId.value = docId
                 }
                 .addOnFailureListener { e ->
-                    Log.w(javaClass.simpleName, "Error creating public marker. $e")
+                    Log.e(javaClass.simpleName, "Error creating public marker. $e")
                 }
         }
     }
 
     // Update the user displayName on an existing public marker
     fun updatePublicMarker(newDisplayName: String) {
-        Log.d(javaClass.simpleName, "Updating public marker.")
         val updates = mapOf(
             "name" to newDisplayName
         )
@@ -109,7 +107,7 @@ class FinderViewModel : ViewModel() {
         db.collection("people")
             .addSnapshotListener { documents, e ->
                 if (e != null || documents == null) {
-                    Log.d(javaClass.simpleName, "Error fetching people markers. $e")
+                    Log.e(javaClass.simpleName, "Error fetching people markers. $e")
                     return@addSnapshotListener
                 }
                 Log.d(javaClass.simpleName, "Success fetching people markers")

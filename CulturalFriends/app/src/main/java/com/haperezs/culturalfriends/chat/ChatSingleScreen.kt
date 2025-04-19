@@ -1,7 +1,5 @@
 package com.haperezs.culturalfriends.chat
 
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +15,6 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -32,18 +29,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.chat.components.ChatBubble
 
 @Composable
 fun ChatSingleScreen(
-    navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
     chatViewModel: ChatViewModel,
     chatId: String
 ) {
-    val chats by chatViewModel.chats.collectAsStateWithLifecycle()
     val messages by chatViewModel.messages.collectAsStateWithLifecycle()
     val userId by authViewModel.userId.collectAsStateWithLifecycle()
     var messageText by remember { mutableStateOf("") }
@@ -60,12 +54,10 @@ fun ChatSingleScreen(
             reverseLayout = true
         ) {
             items(messages) { message ->
-                if (message != null) {
-                    ChatBubble(
-                        message = message,
-                        isCurrentUser = message.sender == userId
-                    )
-                }
+                ChatBubble(
+                    message = message,
+                    isCurrentUser = message.sender == userId
+                )
             }
         }
 

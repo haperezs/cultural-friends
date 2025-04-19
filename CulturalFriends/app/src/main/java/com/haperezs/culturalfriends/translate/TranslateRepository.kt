@@ -10,7 +10,7 @@ import com.haperezs.culturalfriends.model.Language
 import retrofit2.HttpException
 import java.io.IOException
 
-class TranslateRepository() {
+class TranslateRepository {
     private val apiKey = BuildConfig.TRANSLATE_API_KEY
 
     private val api: TranslateApi by lazy {
