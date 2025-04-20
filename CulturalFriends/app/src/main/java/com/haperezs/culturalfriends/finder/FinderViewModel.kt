@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.haperezs.culturalfriends.model.Language
 import com.haperezs.culturalfriends.model.PeopleMarker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,48 +63,73 @@ class FinderViewModel : ViewModel() {
             }
     }
 
-    // If a current marker exists for the user update it, else create it
+    fun createPublicMarker() {
+        val updates = mapOf(
+            "latitude" to 0,
+            "longitude" to 0,
+            "visible" to false,
+            "language" to "en",
+            "name" to "New user",
+            "uid" to auth.currentUser?.uid
+        )
+
+        db.collection("people")
+            .add(updates)
+            .addOnSuccessListener { documentReference ->
+                val docId = documentReference.id
+                Log.d(javaClass.simpleName, "Public marker added with Id: $docId")
+                _publicMarkerId.value = docId
+            }
+            .addOnFailureListener { e ->
+                Log.e(javaClass.simpleName, "Error creating public marker. $e")
+            }
+    }
+
+    // Update the position on an existing public marker
     fun updatePublicMarker(position: LatLng) {
         val updates = mapOf(
             "latitude" to position.latitude,
             "longitude" to position.longitude,
-            "name" to auth.currentUser?.displayName,
-            "uid" to auth.currentUser?.uid
+            "visible" to true,
+            "name" to auth.currentUser?.displayName
         )
 
         if (_publicMarkerId.value?.isNotBlank() == true) {
             db.collection("people")
                 .document(_publicMarkerId.value!!)
                 .set(updates, SetOptions.merge())
-        } else {
-            db.collection("people")
-                .add(updates)
-                .addOnSuccessListener { documentReference ->
-                    val docId = documentReference.id
-                    Log.d(javaClass.simpleName, "Public marker added with Id: $docId")
-                    _publicMarkerId.value = docId
+                .addOnSuccessListener {
+                    Log.d(javaClass.simpleName, "Updated public marker name and language")
                 }
                 .addOnFailureListener { e ->
-                    Log.e(javaClass.simpleName, "Error creating public marker. $e")
+                    Log.e(javaClass.simpleName, "Error updating public marker name and language. $e")
                 }
         }
     }
 
-    // Update the user displayName on an existing public marker
-    fun updatePublicMarker(newDisplayName: String) {
+    // Update the user displayName and language on an existing public marker
+    fun updatePublicMarker(newDisplayName: String, newLanguage: String) {
         val updates = mapOf(
-            "name" to newDisplayName
+            "name" to newDisplayName,
+            "language" to newLanguage
         )
 
         if (_publicMarkerId.value?.isNotBlank() == true) {
             db.collection("people")
                 .document(_publicMarkerId.value!!)
                 .set(updates, SetOptions.merge())
+                .addOnSuccessListener {
+                    Log.d(javaClass.simpleName, "Updated public marker name")
+                }
+                .addOnFailureListener { e ->
+                    Log.e(javaClass.simpleName, "Error updating public marker name. $e")
+                }
         }
     }
 
     private fun fetchPeopleMarkers() {
         db.collection("people")
+            .whereEqualTo("visible", true)
             .addSnapshotListener { documents, e ->
                 if (e != null || documents == null) {
                     Log.e(javaClass.simpleName, "Error fetching people markers. $e")

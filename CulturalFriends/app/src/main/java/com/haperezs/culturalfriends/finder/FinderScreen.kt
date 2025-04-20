@@ -52,7 +52,7 @@ fun FinderScreen(
 
     // Centers the map to the position of the user's pin, only if it exists and is loaded successfully
     LaunchedEffect(publicMarker) {
-        if (publicMarker != null && !finderViewModel.publicMarkerCentered) {
+        if (publicMarker != null && !finderViewModel.publicMarkerCentered && publicMarker!!.visible) {
             finderViewModel.publicMarkerCentered = true
 
             val target = LatLng(publicMarker!!.latitude, publicMarker!!.longitude)

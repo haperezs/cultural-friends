@@ -14,11 +14,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.Screen
+import com.haperezs.culturalfriends.finder.FinderViewModel
 
 @Composable
 fun AuthScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel(),
+    finderViewModel: FinderViewModel
 ) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
@@ -77,6 +79,7 @@ fun AuthScreen(
                             message = if (success) "Registered!" else error
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             if (success){
+                                finderViewModel.createPublicMarker()
                                 navController.navigate(Screen.FinderScreen.route){
                                     popUpTo(Screen.AuthScreen.route) { inclusive = true }
                                 }

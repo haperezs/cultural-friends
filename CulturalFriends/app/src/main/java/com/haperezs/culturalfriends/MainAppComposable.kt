@@ -175,7 +175,12 @@ fun MainAppComposable() {
                 startDestination = startDestination,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable(Screen.AuthScreen.route) { AuthScreen(navController) }
+                composable(Screen.AuthScreen.route) {
+                    AuthScreen(
+                        navController = navController,
+                        finderViewModel = finderViewModel
+                    )
+                }
                 composable(Screen.ChatScreen.route) {
                     ChatScreen(
                         navController = navController,
@@ -201,7 +206,12 @@ fun MainAppComposable() {
                         translateViewModel = translateViewModel
                     )
                 }
-                composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }
+                composable(Screen.SettingsScreen.route) {
+                    SettingsScreen(
+                        navController = navController,
+                        translateViewModel = translateViewModel
+                    )
+                }
                 composable(Screen.TranslateScreen.route) {
                     TranslateScreen(
                         translateViewModel = translateViewModel
