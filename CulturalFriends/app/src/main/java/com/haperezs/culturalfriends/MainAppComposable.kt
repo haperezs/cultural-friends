@@ -88,7 +88,7 @@ fun MainAppComposable() {
     val title = when (currentRoute) {
         Screen.AuthScreen.route -> "Cultural Friends"
         Screen.ChatScreen.route -> "Chats"
-        Screen.ChatSingleScreen.route -> currentChat
+        Screen.ChatSingleScreen.route -> currentChat.otherUserName
         Screen.FinderScreen.route -> "Finder"
         Screen.SettingsScreen.route -> "Settings"
         Screen.TranslateScreen.route -> "Translate"
@@ -190,6 +190,7 @@ fun MainAppComposable() {
                     ChatSingleScreen(
                         navController = navController,
                         chatViewModel = chatViewModel,
+                        finderViewModel = finderViewModel,
                         translateViewModel = translateViewModel,
                         chatId = chatId!!
                     )

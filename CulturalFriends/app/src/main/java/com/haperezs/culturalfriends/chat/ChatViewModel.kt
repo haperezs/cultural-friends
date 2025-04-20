@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.haperezs.culturalfriends.model.Chat
 import com.haperezs.culturalfriends.model.ChatRequest
+import com.haperezs.culturalfriends.model.Language
 import com.haperezs.culturalfriends.model.Message
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ class ChatViewModel : ViewModel() {
 
     init {
         observeAuthChanges()
+        fetchUserLanguage()
     }
 
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
@@ -30,8 +32,8 @@ class ChatViewModel : ViewModel() {
     val chatRequests: StateFlow<List<ChatRequest>> = _chatRequests
 
     // To display the correct name of the person you are chatting with in the topbar
-    private val _currentChat = MutableStateFlow("")
-    val currentChat: StateFlow<String> = _currentChat
+    private val _currentChat = MutableStateFlow(Chat())
+    val currentChat: StateFlow<Chat> = _currentChat
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
@@ -50,7 +52,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun updateCurrentChat(newChat: String) {
+    fun updateCurrentChat(newChat: Chat) {
         _currentChat.value = newChat
     }
 
@@ -71,9 +73,10 @@ class ChatViewModel : ViewModel() {
                         val otherUserId = chat.users.firstOrNull { it != auth.currentUser!!.uid }
 
                         if (otherUserId != null) {
-                            fetchOtherUserName(otherUserId) { otherUserName ->
-                                if (otherUserName != null) {
+                            fetchOtherUserInfo(otherUserId) { otherUserName, otherUserLanguage ->
+                                if (otherUserName != null && otherUserLanguage != null) {
                                     chat.otherUserName = otherUserName
+                                    chat.otherUserLanguage = otherUserLanguage
 
                                     val updatedList = _chats.value.toMutableList()
                                     val index = updatedList.indexOfFirst { it.id == chat.id }
@@ -108,7 +111,7 @@ class ChatViewModel : ViewModel() {
                         val chatRequest = doc.toObject(ChatRequest::class.java).copy(id = doc.id)
                         val otherUserId = chatRequest.from
 
-                        fetchOtherUserName(otherUserId) { otherUserName ->
+                        fetchOtherUserInfo(otherUserId) { otherUserName, _ ->
                             if (otherUserName != null) {
                                 chatRequest.otherUserName = otherUserName
 
@@ -184,13 +187,13 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    private fun fetchOtherUserName(otherUserId: String, onResult: (String?) -> Unit) {
+    private fun fetchOtherUserInfo(otherUserId: String, onResult: (String?, String?) -> Unit) {
         db.collection("people")
             .whereEqualTo("uid", otherUserId)
             .limit(1)
             .addSnapshotListener { querySnapshot, e ->
                 if (e != null) {
-                    Log.d(javaClass.simpleName, "Error fetching other user display name. $e")
+                    Log.d(javaClass.simpleName, "Error fetching other user info. $e")
                     return@addSnapshotListener
                 }
                 if (querySnapshot == null || querySnapshot.size() == 0) {
@@ -198,7 +201,7 @@ class ChatViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
                 val document = querySnapshot.documents[0]
-                onResult(document.getString("name"))
+                onResult(document.getString("name"), document.getString("language"))
             }
     }
 
@@ -254,5 +257,9 @@ class ChatViewModel : ViewModel() {
             .addOnFailureListener { e ->
                 Log.e(javaClass.simpleName, "Error adding message to chat $chatId. $e")
             }
+    }
+
+    fun fetchUserLanguage(){
+
     }
 }

@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.chat.components.ChatBubble
+import com.haperezs.culturalfriends.finder.FinderViewModel
 import com.haperezs.culturalfriends.translate.TranslateViewModel
 
 @Composable
@@ -40,9 +41,12 @@ fun ChatSingleScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
     chatViewModel: ChatViewModel,
+    finderViewModel: FinderViewModel,
     translateViewModel: TranslateViewModel,
     chatId: String
 ) {
+    val currentChat by chatViewModel.currentChat.collectAsStateWithLifecycle()
+    val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
     val messages by chatViewModel.messages.collectAsStateWithLifecycle()
     val userId by authViewModel.userId.collectAsStateWithLifecycle()
     var messageText by remember { mutableStateOf("") }
@@ -64,8 +68,8 @@ fun ChatSingleScreen(
                     isCurrentUser = message.sender == userId,
                     onClickTranslate = {
                         translateViewModel.updateInputText(message.text)
-                        //translateViewModel.updateSourceLanguage()
-                        //translateViewModel.updateTargetLanguage()
+                        translateViewModel.updateSourceLanguage(currentChat.otherUserLanguage)
+                        publicMarker?.let { translateViewModel.updateTargetLanguage(it.language) }
                         translateViewModel.translateText()
                         navController.navigate(Screen.TranslateScreen.route){
                             launchSingleTop = true

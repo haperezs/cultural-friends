@@ -9,6 +9,7 @@ data class Chat(
     val lastMessageBy: String = "",
     val users: List<String> = emptyList(),
     val messages: List<Message?> = emptyList(),
-    // Not part of the model in the db, but fetched in ChatViewModel
+) {
     var otherUserName: String = ""
-)
+    var otherUserLanguage: String = "en"
+}

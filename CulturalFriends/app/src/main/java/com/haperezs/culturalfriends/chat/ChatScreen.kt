@@ -120,7 +120,7 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        chatViewModel.updateCurrentChat(chat.otherUserName)
+                        chatViewModel.updateCurrentChat(chat)
                         navController.navigate(Screen.ChatSingleScreen.createRoute(chat.id))
                     }
                     .padding(horizontal = 16.dp, vertical = 12.dp),

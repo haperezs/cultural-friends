@@ -59,8 +59,24 @@ class TranslateViewModel : ViewModel() {
         _sourceLang.value = language
     }
 
+    fun updateSourceLanguage(language: String){
+        // Find the language object if only the abbreviation is provided
+        val newLanguage = _languages.value.firstOrNull { it.language == language }
+        if (newLanguage != null) {
+            _sourceLang.value = newLanguage
+        }
+    }
+
     fun updateTargetLanguage(language: Language){
         _targetLang.value = language
+    }
+
+    fun updateTargetLanguage(language: String){
+        // Find the language object if only the abbreviation is provided
+        val newLanguage = _languages.value.firstOrNull { it.language == language }
+        if (newLanguage != null) {
+            _targetLang.value = newLanguage
+        }
     }
 
     fun swapSourceAndTargetLanguage(){
