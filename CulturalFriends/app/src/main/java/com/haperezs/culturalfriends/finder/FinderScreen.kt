@@ -1,20 +1,15 @@
 package com.haperezs.culturalfriends.finder
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Accessibility
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PersonAddAlt1
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,6 +19,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.haperezs.culturalfriends.chat.ChatViewModel
 import com.haperezs.culturalfriends.finder.components.InfoBox
+import com.haperezs.culturalfriends.finder.components.PreviewMarker
+import com.haperezs.culturalfriends.finder.components.PublicMarker
 import com.haperezs.culturalfriends.model.PeopleMarker
 import com.haperezs.culturalfriends.translate.TranslateViewModel
 
@@ -33,7 +30,6 @@ fun FinderScreen(
     finderViewModel: FinderViewModel = viewModel(),
     translateViewModel: TranslateViewModel,
 ) {
-    val iconColor = Color(0xFF1565C0)
     val defaultInfo = PeopleMarker("0", 0.0,0.0,"Placeholder", "0")
     val defaultTarget = LatLng(47.607616036871896, -122.31669998841178)
 
@@ -85,62 +81,17 @@ fun FinderScreen(
                 modifier = Modifier.fillMaxSize(),
             ){
                 previewMarker?.let { position ->
-                    MarkerComposable(
-                        state = MarkerState(position = position),
-                    ) {
-                        Column {
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.LocationOn,
-                                    contentDescription = "Preview marker icon",
-                                    tint = iconColor,
-                                    modifier = Modifier.matchParentSize()
-                                )
-                            }
-                        }
-                    }
+                    PreviewMarker(position)
                 }
 
                 peopleMarkers.forEach{marker ->
-                    key(marker.id + marker.name){
-                        MarkerComposable(
-                            state = MarkerState(position = marker.toLatLng()),
-                            onClick = {
-                                selectedMarkerInfo = peopleMarkers.find { it.id == marker.id }!!
-                                showInfo = true
-                                true
-                            }
-                        ) {
-                            Column (
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            )
-                            {
-                                Text(
-                                    text = marker.name,
-                                    color = Color.DarkGray,
-                                    modifier = Modifier
-                                        .background(Color.LightGray)
-                                        .padding(4.dp, 2.dp)
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(48.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Accessibility,
-                                        contentDescription = "Public marker icon",
-                                        tint = iconColor,
-                                        modifier = Modifier.matchParentSize()
-                                    )
-                                }
-                            }
+                    PublicMarker(
+                        marker = marker,
+                        onClick = {
+                            selectedMarkerInfo = peopleMarkers.find { it.id == marker.id }!!
+                            showInfo = true
                         }
-                    }
+                    )
                 }
             }
             if (previewMarker != null) {
