@@ -35,6 +35,7 @@ import com.haperezs.culturalfriends.chat.ChatScreen
 import com.haperezs.culturalfriends.chat.ChatSingleScreen
 import com.haperezs.culturalfriends.chat.ChatViewModel
 import com.haperezs.culturalfriends.finder.FinderScreen
+import com.haperezs.culturalfriends.finder.FinderViewModel
 import com.haperezs.culturalfriends.translate.TranslateScreen
 import com.haperezs.culturalfriends.translate.TranslateViewModel
 
@@ -50,6 +51,7 @@ class BottomNavigationItem(
 fun MainAppComposable() {
     val authViewModel = viewModel<AuthViewModel>()
     val chatViewModel = viewModel<ChatViewModel>()
+    val finderViewModel = viewModel<FinderViewModel>()
     val translateViewModel = viewModel<TranslateViewModel>()
 
     val currentChat by chatViewModel.currentChat.collectAsStateWithLifecycle()
@@ -176,7 +178,7 @@ fun MainAppComposable() {
                 composable(Screen.AuthScreen.route) { AuthScreen(navController) }
                 composable(Screen.ChatScreen.route) {
                     ChatScreen(
-                        navController,
+                        navController = navController,
                         chatViewModel = chatViewModel
                     )
                 }
@@ -186,13 +188,16 @@ fun MainAppComposable() {
                 ) { backStackEntry ->
                     val chatId = backStackEntry.arguments?.getString("chatId")
                     ChatSingleScreen(
+                        navController = navController,
                         chatViewModel = chatViewModel,
+                        translateViewModel = translateViewModel,
                         chatId = chatId!!
                     )
                 }
                 composable(Screen.FinderScreen.route) {
                     FinderScreen(
-                        chatViewModel = chatViewModel
+                        chatViewModel = chatViewModel,
+                        translateViewModel = translateViewModel
                     )
                 }
                 composable(Screen.SettingsScreen.route) { SettingsScreen(navController) }

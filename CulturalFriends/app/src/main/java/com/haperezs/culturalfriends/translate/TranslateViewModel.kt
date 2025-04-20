@@ -1,5 +1,6 @@
 package com.haperezs.culturalfriends.translate
 
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.haperezs.culturalfriends.model.Language
@@ -38,7 +39,7 @@ class TranslateViewModel : ViewModel() {
         }
     }
 
-    fun changeInputText(text: String) {
+    fun updateInputText(text: String) {
         _inputText.value = text
     }
 
@@ -50,7 +51,7 @@ class TranslateViewModel : ViewModel() {
             val target = _targetLang.value.language
             val result = repository.translateText(input, source, target)
             _isLoading.value = false
-            _outputText.value = result
+            _outputText.value = HtmlCompat.fromHtml(result, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
         }
     }
 

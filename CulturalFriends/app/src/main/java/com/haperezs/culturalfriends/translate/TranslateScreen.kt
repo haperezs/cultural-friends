@@ -79,7 +79,7 @@ fun TranslateScreen(
         ) {
             TextField(
                 value = inputText,
-                onValueChange = { translateViewModel.changeInputText(it) },
+                onValueChange = { translateViewModel.updateInputText(it) },
                 modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),

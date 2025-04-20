@@ -41,7 +41,7 @@ import com.haperezs.culturalfriends.utils.formatTimestamp
 fun ChatScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
-    chatViewModel: ChatViewModel
+    chatViewModel: ChatViewModel,
 ) {
     val chats by chatViewModel.chats.collectAsStateWithLifecycle()
     val chatRequests by chatViewModel.chatRequests.collectAsStateWithLifecycle()

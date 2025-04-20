@@ -1,8 +1,11 @@
 package com.haperezs.culturalfriends.chat.components
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +22,8 @@ import com.haperezs.culturalfriends.model.Message
 @Composable
 fun ChatBubble(
     message: Message,
-    isCurrentUser: Boolean
+    isCurrentUser: Boolean,
+    onClickTranslate: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -36,11 +40,23 @@ fun ChatBubble(
                         .padding(12.dp)
                         .widthIn(max = 250.dp)
         ) {
-            Text(
-                text = message.text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black
-            )
+            Column{
+                Text(
+                    text = message.text,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
+                )
+                if (!isCurrentUser) {
+                    Text(
+                        text = "Translate",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color(0xFF3F51B5),
+                        modifier = Modifier.clickable{
+                            onClickTranslate()
+                        }
+                    )
+                }
+            }
         }
     }
 }

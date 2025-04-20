@@ -29,13 +29,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.haperezs.culturalfriends.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.chat.components.ChatBubble
+import com.haperezs.culturalfriends.translate.TranslateViewModel
 
 @Composable
 fun ChatSingleScreen(
+    navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
     chatViewModel: ChatViewModel,
+    translateViewModel: TranslateViewModel,
     chatId: String
 ) {
     val messages by chatViewModel.messages.collectAsStateWithLifecycle()
@@ -56,7 +61,20 @@ fun ChatSingleScreen(
             items(messages) { message ->
                 ChatBubble(
                     message = message,
-                    isCurrentUser = message.sender == userId
+                    isCurrentUser = message.sender == userId,
+                    onClickTranslate = {
+                        translateViewModel.updateInputText(message.text)
+                        //translateViewModel.updateSourceLanguage()
+                        //translateViewModel.updateTargetLanguage()
+                        translateViewModel.translateText()
+                        navController.navigate(Screen.TranslateScreen.route){
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                        }
+                    }
                 )
             }
         }

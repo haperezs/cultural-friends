@@ -11,6 +11,7 @@ data class PeopleMarker(
     val longitude: Double = 0.0,
     val name: String = "",
     val uid: String = "",
+    val language: String = "en"
 ) {
     var canSendRequest: Boolean by mutableStateOf(true)
     var chatRequestButtonText: String by mutableStateOf("Start chat")

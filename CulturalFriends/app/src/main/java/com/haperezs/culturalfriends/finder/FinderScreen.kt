@@ -3,15 +3,12 @@ package com.haperezs.culturalfriends.finder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAddAlt1
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,12 +23,15 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.haperezs.culturalfriends.chat.ChatViewModel
+import com.haperezs.culturalfriends.finder.components.InfoBox
 import com.haperezs.culturalfriends.model.PeopleMarker
+import com.haperezs.culturalfriends.translate.TranslateViewModel
 
 @Composable
 fun FinderScreen(
     chatViewModel: ChatViewModel,
-    finderViewModel: FinderViewModel = viewModel()
+    finderViewModel: FinderViewModel = viewModel(),
+    translateViewModel: TranslateViewModel,
 ) {
     val iconColor = Color(0xFF1565C0)
     val defaultInfo = PeopleMarker("0", 0.0,0.0,"Placeholder", "0")
@@ -40,6 +40,8 @@ fun FinderScreen(
     val previewMarker by finderViewModel.previewMarker.collectAsStateWithLifecycle()
     val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
     val peopleMarkers by finderViewModel.peopleMarkers.collectAsStateWithLifecycle()
+
+    val languages by translateViewModel.languages.collectAsStateWithLifecycle()
 
     var showInfo by remember { mutableStateOf(false) }
     var selectedMarkerInfo by remember { mutableStateOf(defaultInfo) }
@@ -160,56 +162,13 @@ fun FinderScreen(
                 }
             }
             if (showInfo) {
-                Box (
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                                    .background(
-                                        Color.Black.copy(alpha = 0.8f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .fillMaxWidth()
-                                    .padding(16.dp, 24.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                        .align(Alignment.CenterHorizontally)
-                                        .padding(0.dp, 0.dp, 0.dp, 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = "User info window icon",
-                                tint = Color.White
-                            )
-                            Text(
-                                text = selectedMarkerInfo.name,
-                                modifier = Modifier
-                                            .padding(4.dp, 0.dp),
-                                color = Color.White,
-                            )
-                        }
-                        Row (
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) {
-                            OutlinedButton(
-                                onClick = {
-                                    chatViewModel.sendChatRequest(selectedMarkerInfo.uid)
-                                    selectedMarkerInfo.canSendRequest = false
-                                    selectedMarkerInfo.chatRequestButtonText = "Request sent"
-                                },
-                                enabled = selectedMarkerInfo.canSendRequest
-                            ) {
-                                Text(
-                                    text = selectedMarkerInfo.chatRequestButtonText,
-                                    modifier = Modifier
-                                        .padding(4.dp, 0.dp),
-                                    color = Color.White,
-                                )
-                            }
-                        }
+                InfoBox(
+                    markerInfo = selectedMarkerInfo,
+                    languages = languages,
+                    onClickSendMessage = {
+                        chatViewModel.sendChatRequest(selectedMarkerInfo.uid)
                     }
-                }
+                )
             }
         }
     }
