@@ -1,4 +1,4 @@
-package com.haperezs.culturalfriends
+package com.haperezs.culturalfriends.navigation
 
 sealed class Screen(
     val route: String,

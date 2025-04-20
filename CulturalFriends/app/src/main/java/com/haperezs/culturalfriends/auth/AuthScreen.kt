@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.haperezs.culturalfriends.Screen
+import com.haperezs.culturalfriends.navigation.Screen
 import com.haperezs.culturalfriends.finder.FinderViewModel
 
 @Composable

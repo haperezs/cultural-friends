@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.haperezs.culturalfriends.Screen
+import com.haperezs.culturalfriends.navigation.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.chat.components.ChatBubble
 import com.haperezs.culturalfriends.finder.FinderViewModel

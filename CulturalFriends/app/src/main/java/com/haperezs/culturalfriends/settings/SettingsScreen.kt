@@ -1,4 +1,4 @@
-package com.haperezs.culturalfriends
+package com.haperezs.culturalfriends.settings
 
 import android.util.Log
 import android.widget.Toast
@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.haperezs.culturalfriends.navigation.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
 import com.haperezs.culturalfriends.finder.FinderViewModel
 import com.haperezs.culturalfriends.model.Language

@@ -22,7 +22,6 @@ class ChatViewModel : ViewModel() {
 
     init {
         observeAuthChanges()
-        fetchUserLanguage()
     }
 
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
@@ -257,9 +256,5 @@ class ChatViewModel : ViewModel() {
             .addOnFailureListener { e ->
                 Log.e(javaClass.simpleName, "Error adding message to chat $chatId. $e")
             }
-    }
-
-    fun fetchUserLanguage(){
-
     }
 }
