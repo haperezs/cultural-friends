@@ -97,7 +97,7 @@ fun SettingsScreen(
                 onClick = {
                     authViewModel.logout()
                     navController.navigate(Screen.AuthScreen.route) {
-                        popUpTo(Screen.FinderScreen.route) { inclusive = true }
+                        popUpTo(0)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

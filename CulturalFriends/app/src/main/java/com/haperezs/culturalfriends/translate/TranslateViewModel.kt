@@ -44,6 +44,10 @@ class TranslateViewModel : ViewModel() {
     }
 
     fun translateText() {
+        if (_sourceLang.value == _targetLang.value){
+            _outputText.value = _inputText.value
+            return
+        }
         viewModelScope.launch {
             _isLoading.value = true
             val input = _inputText.value
