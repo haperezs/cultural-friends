@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -27,7 +26,7 @@ import com.haperezs.culturalfriends.translate.TranslateViewModel
 @Composable
 fun FinderScreen(
     chatViewModel: ChatViewModel,
-    finderViewModel: FinderViewModel = viewModel(),
+    finderViewModel: FinderViewModel,
     translateViewModel: TranslateViewModel,
 ) {
     val defaultInfo = PeopleMarker("0", 0.0,0.0,"Placeholder", "0")

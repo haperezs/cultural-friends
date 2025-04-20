@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.navigation.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
@@ -39,7 +38,7 @@ import com.haperezs.culturalfriends.translate.TranslateViewModel
 @Composable
 fun ChatSingleScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel(),
+    authViewModel: AuthViewModel,
     chatViewModel: ChatViewModel,
     finderViewModel: FinderViewModel,
     translateViewModel: TranslateViewModel,

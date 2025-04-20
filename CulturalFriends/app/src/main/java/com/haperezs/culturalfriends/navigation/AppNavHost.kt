@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -38,12 +39,14 @@ fun AppNavHost(
         composable(Screen.AuthScreen.route) {
             AuthScreen(
                 navController = navController,
+                authViewModel = authViewModel,
                 finderViewModel = finderViewModel
             )
         }
         composable(Screen.ChatScreen.route) {
             ChatScreen(
                 navController = navController,
+                authViewModel = viewModel(),
                 chatViewModel = chatViewModel
             )
         }
@@ -54,8 +57,9 @@ fun AppNavHost(
             val chatId = backStackEntry.arguments?.getString("chatId")
             ChatSingleScreen(
                 navController = navController,
+                authViewModel = viewModel(),
                 chatViewModel = chatViewModel,
-                finderViewModel = finderViewModel,
+                finderViewModel = viewModel(),
                 translateViewModel = translateViewModel,
                 chatId = chatId!!
             )
@@ -63,12 +67,15 @@ fun AppNavHost(
         composable(Screen.FinderScreen.route) {
             FinderScreen(
                 chatViewModel = chatViewModel,
+                finderViewModel = viewModel(),
                 translateViewModel = translateViewModel
             )
         }
         composable(Screen.SettingsScreen.route) {
             SettingsScreen(
                 navController = navController,
+                authViewModel = authViewModel,
+                finderViewModel = viewModel(),
                 translateViewModel = translateViewModel
             )
         }

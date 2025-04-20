@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.navigation.Screen
@@ -19,7 +18,7 @@ import com.haperezs.culturalfriends.finder.FinderViewModel
 @Composable
 fun AuthScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel(),
+    authViewModel: AuthViewModel,
     finderViewModel: FinderViewModel
 ) {
     val context = LocalContext.current

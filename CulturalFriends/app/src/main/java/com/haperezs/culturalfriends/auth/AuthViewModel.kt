@@ -26,6 +26,19 @@ class AuthViewModel : ViewModel() {
     private val _userId = MutableStateFlow(auth.currentUser?.uid ?: "")
     val userId: StateFlow<String> = _userId
 
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+
+    init {
+        checkIfLoggedIn()
+    }
+
+    private fun checkIfLoggedIn(){
+        if(auth.currentUser != null){
+            _isLoggedIn.value = true
+        }
+    }
+
     fun login(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
         if (email.isBlank()){
             Log.d(javaClass.simpleName, "No email provided")
@@ -40,6 +53,7 @@ class AuthViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _authState.value = auth.currentUser
+                    _isLoggedIn.value = true
                     onResult(true, null)
                 } else {
                     onResult(false, task.exception?.message)
@@ -61,6 +75,7 @@ class AuthViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _authState.value = auth.currentUser
+                    _isLoggedIn.value = true
                     // Set the email as the display name on registration
                     auth.currentUser?.updateProfile(
                         userProfileChangeRequest {
@@ -77,6 +92,7 @@ class AuthViewModel : ViewModel() {
     fun logout() {
         auth.signOut()
         _authState.value = null
+        _isLoggedIn.value = false
     }
 
     fun updateDisplayName(newDisplayName: String){

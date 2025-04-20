@@ -6,7 +6,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.navigation.Screen
 import com.haperezs.culturalfriends.auth.AuthViewModel
@@ -16,7 +15,7 @@ import com.haperezs.culturalfriends.chat.components.ChatRow
 @Composable
 fun ChatScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel(),
+    authViewModel: AuthViewModel,
     chatViewModel: ChatViewModel,
 ) {
     val chats by chatViewModel.chats.collectAsStateWithLifecycle()
