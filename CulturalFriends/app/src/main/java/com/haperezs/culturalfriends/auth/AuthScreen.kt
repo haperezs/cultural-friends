@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.navigation.NavController
 import com.haperezs.culturalfriends.navigation.Screen
 import com.haperezs.culturalfriends.finder.FinderViewModel
@@ -22,6 +23,8 @@ fun AuthScreen(
     finderViewModel: FinderViewModel
 ) {
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
@@ -30,7 +33,7 @@ fun AuthScreen(
         modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         TextField (
             value = email,
@@ -66,6 +69,7 @@ fun AuthScreen(
                                 }
                             }
                         }
+                        keyboardController?.hide()
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -84,6 +88,7 @@ fun AuthScreen(
                                 }
                             }
                         }
+                        keyboardController?.hide()
                     },
                     modifier = Modifier
                         .fillMaxWidth()

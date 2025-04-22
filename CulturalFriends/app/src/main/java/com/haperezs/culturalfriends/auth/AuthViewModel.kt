@@ -54,6 +54,7 @@ class AuthViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     _authState.value = auth.currentUser
                     _isLoggedIn.value = true
+                    _displayName.value = auth.currentUser?.displayName ?: ""
                     onResult(true, null)
                 } else {
                     onResult(false, task.exception?.message)
@@ -77,6 +78,7 @@ class AuthViewModel : ViewModel() {
                     _authState.value = auth.currentUser
                     _isLoggedIn.value = true
                     // Set the email as the display name on registration
+                    _displayName.value = email.substringBefore('@')
                     auth.currentUser?.updateProfile(
                         userProfileChangeRequest {
                             displayName = email.substringBefore('@')
@@ -104,6 +106,7 @@ class AuthViewModel : ViewModel() {
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(javaClass.simpleName, "User displayName updated to $newDisplayName")
+                    _displayName.value = newDisplayName
                 } else {
                     Log.e(javaClass.simpleName, "Failed to update display name. ${task.exception}")
                 }

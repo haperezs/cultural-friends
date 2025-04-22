@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.haperezs.culturalfriends.translate.components.LanguageSelector
@@ -30,6 +31,8 @@ import com.haperezs.culturalfriends.translate.components.LanguageSelector
 fun TranslateScreen(
     translateViewModel: TranslateViewModel,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val languages by translateViewModel.languages.collectAsStateWithLifecycle()
     val inputText by translateViewModel.inputText.collectAsStateWithLifecycle()
     val outputText by translateViewModel.outputText.collectAsStateWithLifecycle()
@@ -124,6 +127,7 @@ fun TranslateScreen(
         Button (
             onClick = {
                 translateViewModel.translateText()
+                keyboardController?.hide()
             },
             modifier = Modifier.fillMaxWidth(),
         ) {

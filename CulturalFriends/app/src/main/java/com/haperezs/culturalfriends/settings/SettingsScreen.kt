@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -38,6 +39,7 @@ fun SettingsScreen(
     translateViewModel: TranslateViewModel
 ) {
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     val displayName by authViewModel.displayName.collectAsStateWithLifecycle()
     val languages by translateViewModel.languages.collectAsStateWithLifecycle()
@@ -84,6 +86,7 @@ fun SettingsScreen(
                     authViewModel.updateDisplayName(newDisplayName)
                     // If the user has a public marker, update the name on it too
                     finderViewModel.updatePublicMarker(newDisplayName, language?.language ?: "en")
+                    keyboardController?.hide()
                     Toast.makeText(context, "Updated public info", Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally),

@@ -23,6 +23,10 @@ fun TopBar(
     val backArrowRoutes = listOf(Screen.ChatSingleScreen.route, Screen.SettingsScreen.route)
     val canNavigateBack = currentRoute in backArrowRoutes
 
+    // Routes where setings button is shown
+    val settingsRoutes = listOf(Screen.ChatScreen.route, Screen.FinderScreen.route, Screen.TranslateScreen.route)
+    val canOpenSettings = currentRoute in settingsRoutes
+
     val title = when (currentRoute) {
         Screen.AuthScreen.route -> "Cultural Friends"
         Screen.ChatScreen.route -> "Chats"
@@ -40,15 +44,17 @@ fun TopBar(
             )
         },
         actions = {
-            IconButton(
-                onClick = {
-                    navController.navigate(Screen.SettingsScreen.route)
+            if (canOpenSettings){
+                IconButton(
+                    onClick = {
+                        navController.navigate(Screen.SettingsScreen.route)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Go to settings"
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Go to settings"
-                )
             }
         },
         navigationIcon = {
