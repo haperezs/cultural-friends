@@ -19,6 +19,7 @@ fun NavBar(
     navController: NavController,
     currentRoute: String
 ) {
+    // Each item is a tab
     val items = listOf(
         BottomNavigationItem(
             title = "Chats",

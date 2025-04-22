@@ -14,6 +14,8 @@ class TranslateViewModel : ViewModel() {
     init {
         fetchSupportedLanguages()
     }
+
+    // List of all the languages provided by the API
     private val _languages = MutableStateFlow<List<Language>>(emptyList())
     val languages: StateFlow<List<Language>> = _languages
 

@@ -45,6 +45,7 @@ fun SettingsScreen(
     val languages by translateViewModel.languages.collectAsStateWithLifecycle()
     val publicMarker by finderViewModel.publicMarker.collectAsStateWithLifecycle()
 
+    // These are the editable values that will be stored if the user clicks "Update"
     var language by remember { mutableStateOf<Language?>(null) }
     var newDisplayName by remember { mutableStateOf(displayName) }
 

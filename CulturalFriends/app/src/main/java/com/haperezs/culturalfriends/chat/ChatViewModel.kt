@@ -24,16 +24,19 @@ class ChatViewModel : ViewModel() {
         observeAuthChanges()
     }
 
+    // List of chats
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
 
+    // List of chat requests
     private val _chatRequests = MutableStateFlow<List<ChatRequest>>(emptyList())
     val chatRequests: StateFlow<List<ChatRequest>> = _chatRequests
 
-    // To display the correct name of the person you are chatting with in the topbar
+    // Hold the chat object when a chat is opened
     private val _currentChat = MutableStateFlow(Chat())
     val currentChat: StateFlow<Chat> = _currentChat
 
+    // List of messages from the current chat
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
 
@@ -71,6 +74,7 @@ class ChatViewModel : ViewModel() {
                         val chat = doc.toObject(Chat::class.java).copy(id = doc.id)
                         val otherUserId = chat.users.firstOrNull { it != auth.currentUser!!.uid }
 
+                        // Get the info of the other user and add it to the chat object
                         if (otherUserId != null) {
                             fetchOtherUserInfo(otherUserId) { otherUserName, otherUserLanguage ->
                                 if (otherUserName != null && otherUserLanguage != null) {
@@ -110,6 +114,7 @@ class ChatViewModel : ViewModel() {
                         val chatRequest = doc.toObject(ChatRequest::class.java).copy(id = doc.id)
                         val otherUserId = chatRequest.from
 
+                        // Get the info of the other user and add it to the chat object
                         fetchOtherUserInfo(otherUserId) { otherUserName, _ ->
                             if (otherUserName != null) {
                                 chatRequest.otherUserName = otherUserName
@@ -174,6 +179,7 @@ class ChatViewModel : ViewModel() {
             }
     }
 
+    // Delete the chat request
     fun denyChatRequest(chatRequest: ChatRequest){
         db.collection("chatRequests")
             .document(chatRequest.id)
@@ -223,6 +229,7 @@ class ChatViewModel : ViewModel() {
             }
     }
 
+    // Add a message instance to the subcollection of chatId
     fun sendMessage(chatId: String, message: String){
         val chatUpdates = mapOf(
             "lastMessage" to message,

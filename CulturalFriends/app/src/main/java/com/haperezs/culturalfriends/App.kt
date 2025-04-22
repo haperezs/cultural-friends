@@ -33,6 +33,7 @@ class BottomNavigationItem(
 
 @Composable
 fun App() {
+    // Hold a sessionId so that the app is reloaded when a user logs out
     var sessionId by remember { mutableStateOf(UUID.randomUUID().toString()) }
     val authViewModel = viewModel<AuthViewModel>()
     val isLoggedIn by authViewModel.isLoggedIn.collectAsStateWithLifecycle()
@@ -49,13 +50,14 @@ fun App() {
         val finderViewModel = viewModel<FinderViewModel>()
         val translateViewModel = viewModel<TranslateViewModel>()
 
+        // Used here to display the name of the chat in the topbar
         val currentChat by chatViewModel.currentChat.collectAsStateWithLifecycle()
         val user by authViewModel.authState.collectAsStateWithLifecycle()
 
         val currentBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = currentBackStackEntry?.destination?.route
 
-        // If user is not logged in, navigate to Auth Screen
+        // If user is not logged in, navigate to Auth Screen, else to Finder Screen
         val startDestination = if (user != null) Screen.FinderScreen.route else Screen.AuthScreen.route
 
         Scaffold(

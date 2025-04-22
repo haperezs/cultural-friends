@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 class AuthViewModel : ViewModel() {
     private val auth: FirebaseAuth = Firebase.auth
 
-    // Used to validate if a user is logged in
+    // Used to share user info if a user is logged in
     private val _authState = MutableStateFlow(auth.currentUser)
     val authState: StateFlow<FirebaseUser?> = _authState
 
@@ -26,6 +26,7 @@ class AuthViewModel : ViewModel() {
     private val _userId = MutableStateFlow(auth.currentUser?.uid ?: "")
     val userId: StateFlow<String> = _userId
 
+    // Used to validate if a user is logged in
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 

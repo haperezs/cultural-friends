@@ -11,6 +11,7 @@ fun formatTimestamp(timestamp: Timestamp): String {
         time = timestamp.toDate()
     }
 
+    // If it is the same day dispolay only the time, if it is a past day, display the date instead
     val sdf : SimpleDateFormat =
         if (today.get(Calendar.DAY_OF_YEAR) == message.get(Calendar.DAY_OF_YEAR)
             && today.get(Calendar.YEAR) == message.get(Calendar.YEAR)) {
